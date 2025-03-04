@@ -1,0 +1,8 @@
+[package]
+name = "RHA"
+version = "0.0.1"
+edition = "2024"
+
+[dependencies]
+cocoa = "0.24"
+objc = "0.2"
