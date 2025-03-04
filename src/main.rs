@@ -1,8 +1,6 @@
 // src/main.rs
-
 #[macro_use]
 extern crate cocoa;
-#[macro_use]
 extern crate objc;
 
 mod menu;

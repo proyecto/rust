@@ -7,6 +7,7 @@ use objc::runtime::{Class, Object, Sel};
 use objc::declare::ClassDecl;
 use objc::msg_send;
 use objc::sel;
+use objc::sel_impl;
 
 /// Crea y muestra la ventana principal de la aplicación.
 /// La ventana incluirá los botones de cerrar, minimizar y redimensionar.

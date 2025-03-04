@@ -5,6 +5,7 @@ use cocoa::base::{id, nil};
 use cocoa::foundation::NSString;
 use objc::msg_send;
 use objc::sel;
+use objc::sel_impl;
 
 /// Configura y asigna el menú principal con los elementos:
 /// - Menú de la aplicación (Acerca de MiApp, Salir)
