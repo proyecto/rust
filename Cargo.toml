@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 cocoa = "0.24"
 objc = "0.2"
+rusqlite = "0.28"
