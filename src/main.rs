@@ -1,8 +1,10 @@
 extern crate cocoa;
 extern crate objc;
 
+mod constants;
 mod main_menu;
 mod main_window;
+mod main_sideview;
 
 use cocoa::appkit::{NSApp, NSApplication, NSApplicationActivationPolicyRegular};
 use cocoa::base::nil;
