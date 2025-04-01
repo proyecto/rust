@@ -1,45 +1,45 @@
 // src/main_sideview.rs
 
-use cocoa::appkit::{NSButton, NSView};
+#[link(name = "QuartzCore", kind = "framework")]
+extern "C" {}
+
+use crate::constants::LEFT_VIEW_COLOR;
+use cocoa::appkit::{NSButton, NSColor, NSView};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
 use objc::{class, msg_send, sel, sel_impl};
 
-const BUTTON_HEIGHT: f64 = 40.0;
-const BUTTON_MARGIN_TOP: f64 = 20.0;
-const BUTTON_SPACING: f64 = 10.0;
+pub unsafe fn create(frame: NSRect) -> id {
+    let view: id = msg_send![class!(NSView), alloc];
+    let view: id = msg_send![view, initWithFrame: frame];
+    let _: () = msg_send![view, setWantsLayer: true];
 
-#[repr(u64)]
-enum NSButtonType {
-    MomentaryPushIn = 0,
+    let background_color: id = msg_send![
+        class!(NSColor),
+        colorWithCalibratedRed: LEFT_VIEW_COLOR.0
+        green: LEFT_VIEW_COLOR.1
+        blue: LEFT_VIEW_COLOR.2
+        alpha: 1.0
+    ];
+    let cg_color: id = msg_send![background_color, CGColor];
+    let layer: id = msg_send![class!(CALayer), alloc];
+    let layer: id = msg_send![layer, init];
+    let _: () = msg_send![layer, setBackgroundColor: cg_color];
+    let _: () = msg_send![view, setLayer: layer];
+
+    view.addSubview_(create_sideview_button("Botón Cocoa", frame));
+    view
 }
 
-pub unsafe fn create(frame: NSRect) -> id {
-    // Crear la vista contenedora (barra lateral)
-    let view: id = NSView::alloc(nil);
-    let view: id = cocoa::appkit::NSView::initWithFrame_(view, frame);
-    let _: () = msg_send![view, setWantsLayer: true];
-    let layer: id = msg_send![view, layer];
-    let gray: id = msg_send![class!(NSColor), grayColor];
-    let cg_color: id = msg_send![gray, CGColor];
-    let _: () = msg_send![layer, setBackgroundColor: cg_color];
+pub unsafe fn create_sideview_button(text: &str, container_frame: NSRect) -> id {
+    let button_frame = NSRect::new(
+        NSPoint::new(10.0, container_frame.size.height - 60.0),
+        NSSize::new(container_frame.size.width - 20.0, 40.0),
+    );
 
-    // Crear 5 botones
-    for i in 0..5 {
-        let label = format!("Etiqueta {}", i + 1);
-        let y = frame.size.height - BUTTON_MARGIN_TOP - ((BUTTON_HEIGHT + BUTTON_SPACING) * i as f64);
-        let button_frame = NSRect::new(
-            NSPoint::new(10.0, y),
-            NSSize::new(frame.size.width - 20.0, BUTTON_HEIGHT),
-        );
-
-        let button: id = NSButton::alloc(nil);
-        let button: id = cocoa::appkit::NSView::initWithFrame_(button, button_frame);
-        let _: () = msg_send![button, setButtonType: NSButtonType::MomentaryPushIn as u64];
-        let _: () = msg_send![button, setTitle: NSString::alloc(nil).init_str(&label)];
-
-        view.addSubview_(button);
-    }
-
-    view
+    let button: id = msg_send![class!(NSButton), alloc];
+    let button: id = msg_send![button, initWithFrame: button_frame];
+    let title = NSString::alloc(nil).init_str(text);
+    let _: () = msg_send![button, setTitle: title];
+    button
 }

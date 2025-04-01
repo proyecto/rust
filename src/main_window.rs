@@ -3,7 +3,6 @@
 use crate::constants::{
     LEFT_VIEW_COLOR, RIGHT_VIEW_COLOR, SIDEBAR_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH,
 };
-
 use cocoa::appkit::{NSBackingStoreType, NSView, NSWindow, NSWindowStyleMask};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
@@ -42,11 +41,9 @@ impl MainWindow {
             window.setTitle_(NSString::alloc(nil).init_str("MiApp"));
 
             let content_view: id = window.contentView();
-            let split_view = create_split_view(frame);
-            content_view.addSubview_(split_view);
+            content_view.addSubview_(create_split_view(frame));
 
-            let delegate_class = create_delegate_class();
-            let delegate: id = msg_send![delegate_class, new];
+            let delegate: id = msg_send![create_delegate_class(), new];
             let _: () = msg_send![window, setDelegate: delegate];
 
             window.makeKeyAndOrderFront_(nil);
@@ -58,28 +55,20 @@ impl MainWindow {
 
 /// Crea un NSSplitView con dos subviews: una gris (sidebar) y una blanca (contenido)
 unsafe fn create_split_view(frame: NSRect) -> id {
-    let split_class = class!(NSSplitView);
-
-    let split_view: id = msg_send![split_class, alloc];
+    let split_view: id = msg_send![class!(NSSplitView), alloc];
     let split_view: id = msg_send![split_view, initWithFrame: frame];
-    let _: () = msg_send![split_view, setDividerStyle: 1]; // Thin
+    let _: () = msg_send![split_view, setDividerStyle: 1];
     let _: () = msg_send![split_view, setVertical: true];
 
-    // Vistas
-    let left_view = main_sideview::create(
-        NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(SIDEBAR_WIDTH, WINDOW_HEIGHT))
+    let left_frame = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(SIDEBAR_WIDTH, WINDOW_HEIGHT));
+    let right_frame = NSRect::new(
+        NSPoint::new(SIDEBAR_WIDTH, 0.0),
+        NSSize::new(WINDOW_WIDTH - SIDEBAR_WIDTH, WINDOW_HEIGHT),
     );
 
-    let right_view = create_colored_view(
-        NSRect::new(
-            NSPoint::new(SIDEBAR_WIDTH, 0.0),
-            NSSize::new(WINDOW_WIDTH - SIDEBAR_WIDTH, WINDOW_HEIGHT),
-        ),
-        RIGHT_VIEW_COLOR,
-    );
-
-    split_view.addSubview_(left_view);
-    split_view.addSubview_(right_view);
+    split_view.addSubview_(main_sideview::create(left_frame));
+    split_view.addSubview_(create_colored_view(right_frame, RIGHT_VIEW_COLOR));
+    let _: () = msg_send![split_view, adjustSubviews];
 
     split_view
 }
