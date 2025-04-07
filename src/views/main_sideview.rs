@@ -30,9 +30,12 @@ pub unsafe fn create(frame: NSRect) -> id {
     let _: () = msg_send![layer, setBackgroundColor: cg_color];
     let _: () = msg_send![view, setLayer: layer];
 
+    // Create the button
     let button_frame = NSRect::new(NSPoint::new(10.0, frame.size.height - 60.0), NSSize::new(frame.size.width - 20.0, 40.0));
-    let things_button = things_button::create_things_button("Hoy", button_frame);
-    let _: () = msg_send![view, addSubview: things_button];
+
+    // Create the button
+    let button = things_button::create_things_button("Hoy", button_frame);
+    let _: () = msg_send![view, addSubview: button];
 
     view
 }

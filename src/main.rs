@@ -9,9 +9,17 @@ pub mod views;
 use cocoa::appkit::{NSApp, NSApplication, NSApplicationActivationPolicyRegular};
 use cocoa::base::nil;
 use cocoa::foundation::NSAutoreleasePool;
+use objc::{class, msg_send, sel, sel_impl};
+
 //use rusqlite::Connection;
 
 fn main() {
+
+    unsafe {
+        let _: () = msg_send![class!(NSApplication), sharedApplication];
+        println!("🔍 Cocoa runtime loaded, tracking what happens next...");
+    }
+
     unsafe {
         let _pool = NSAutoreleasePool::new(nil);
         let app = NSApp();
