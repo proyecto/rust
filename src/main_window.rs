@@ -1,16 +1,18 @@
 // src/main_window.rs
 
 use crate::constants::{
-    LEFT_VIEW_COLOR, RIGHT_VIEW_COLOR, SIDEBAR_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH,
+    RIGHT_VIEW_COLOR, SIDEBAR_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH,
 };
+
+
 use cocoa::appkit::{NSBackingStoreType, NSView, NSWindow, NSWindowStyleMask};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
-use objc::class;
 use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel};
-use objc::{msg_send, sel, sel_impl};
+use objc::{msg_send, sel, sel_impl, class};
 use crate::main_sideview;
+use crate::views::main_view;
 
 pub struct MainWindow {
     window: id,
@@ -67,7 +69,7 @@ unsafe fn create_split_view(frame: NSRect) -> id {
     );
 
     split_view.addSubview_(main_sideview::create(left_frame));
-    split_view.addSubview_(create_colored_view(right_frame, RIGHT_VIEW_COLOR));
+    split_view.addSubview_(main_view::render_main_view_as_nsview(right_frame));
     let _: () = msg_send![split_view, adjustSubviews];
 
     split_view

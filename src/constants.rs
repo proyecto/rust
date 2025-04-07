@@ -6,7 +6,7 @@ pub const WINDOW_HEIGHT: f64 = 600.0;
 pub const SIDEBAR_WIDTH: f64 = 200.0;
 
 // Colores
-pub const LEFT_VIEW_COLOR: (f64, f64, f64) = (0.8, 0.8, 0.8); // Gris medio
+pub const LEFT_VIEW_COLOR: (f64, f64, f64) = (0.9, 0.9, 0.9); // Gris medio
 pub const RIGHT_VIEW_COLOR: (f32, f32, f32) = (1.0, 1.0, 1.0);
 
 // Constantes del sidebar

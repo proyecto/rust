@@ -3,11 +3,13 @@
 #[link(name = "QuartzCore", kind = "framework")]
 extern "C" {}
 
-use crate::constants::LEFT_VIEW_COLOR;
-use cocoa::appkit::{NSButton, NSColor, NSView};
+use crate::constants::{BUTTON_HEIGHT, BUTTON_MARGIN_TOP, BUTTON_SPACING,LEFT_VIEW_COLOR};
+
+use cocoa::appkit::NSView;
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
 use objc::{class, msg_send, sel, sel_impl};
+
 
 pub unsafe fn create(frame: NSRect) -> id {
     let view: id = msg_send![class!(NSView), alloc];
@@ -33,8 +35,8 @@ pub unsafe fn create(frame: NSRect) -> id {
 
 pub unsafe fn create_sideview_button(text: &str, container_frame: NSRect) -> id {
     let button_frame = NSRect::new(
-        NSPoint::new(10.0, container_frame.size.height - 60.0),
-        NSSize::new(container_frame.size.width - 20.0, 40.0),
+        NSPoint::new(10.0, container_frame.size.height - BUTTON_MARGIN_TOP),
+        NSSize::new(container_frame.size.width - BUTTON_SPACING, BUTTON_HEIGHT),
     );
 
     let button: id = msg_send![class!(NSButton), alloc];
