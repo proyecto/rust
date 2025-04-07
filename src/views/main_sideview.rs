@@ -1,9 +1,10 @@
 // src/main_sideview.rs
 
 #[link(name = "QuartzCore", kind = "framework")]
-extern "C" {}
+unsafe extern "C" {}
 
 use crate::constants::{BUTTON_HEIGHT, BUTTON_MARGIN_TOP, BUTTON_SPACING,LEFT_VIEW_COLOR};
+use crate::views::things_button as things_button;
 
 use cocoa::appkit::NSView;
 use cocoa::base::{id, nil};
@@ -29,22 +30,13 @@ pub unsafe fn create(frame: NSRect) -> id {
     let _: () = msg_send![layer, setBackgroundColor: cg_color];
     let _: () = msg_send![view, setLayer: layer];
 
-    view.addSubview_(create_sideview_button("Botón Cocoa", frame));
+    let button_frame = NSRect::new(NSPoint::new(10.0, frame.size.height - 60.0), NSSize::new(frame.size.width - 20.0, 40.0));
+    let things_button = things_button::create_things_button("Hoy", button_frame);
+    let _: () = msg_send![view, addSubview: things_button];
+
     view
 }
 
-pub unsafe fn create_sideview_button(text: &str, container_frame: NSRect) -> id {
-    let button_frame = NSRect::new(
-        NSPoint::new(10.0, container_frame.size.height - BUTTON_MARGIN_TOP),
-        NSSize::new(container_frame.size.width - BUTTON_SPACING, BUTTON_HEIGHT),
-    );
-
-    let button: id = msg_send![class!(NSButton), alloc];
-    let button: id = msg_send![button, initWithFrame: button_frame];
-    let title = NSString::alloc(nil).init_str(text);
-    let _: () = msg_send![button, setTitle: title];
-    button
-}
 
 pub fn render(x: f64, y: f64, width: f64, height: f64) {
     unsafe {
