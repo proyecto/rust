@@ -11,7 +11,7 @@ use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
 use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel};
 use objc::{msg_send, sel, sel_impl, class};
-use crate::main_sideview;
+use crate::views::main_sideview;
 use crate::views::main_view;
 
 pub struct MainWindow {

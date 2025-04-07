@@ -1,11 +1,10 @@
 use crate::constants::{WINDOW_WIDTH, WINDOW_HEIGHT, SIDEBAR_WIDTH, RIGHT_VIEW_COLOR};
-use crate::views::side_view;
+use crate::views::main_sideview;
 use cocoa::appkit::NSView;
 use cocoa::foundation::NSRect;
 use objc::msg_send;
 use objc::runtime::Object;
 
-pub mod main_view; 
 
 pub fn render_main_view() {
     // Renderiza el fondo blanco

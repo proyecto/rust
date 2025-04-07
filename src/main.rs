@@ -4,7 +4,6 @@ extern crate objc;
 mod constants;
 mod main_menu;
 mod main_window;
-mod main_sideview;
 pub mod views;
 
 use cocoa::appkit::{NSApp, NSApplication, NSApplicationActivationPolicyRegular};
