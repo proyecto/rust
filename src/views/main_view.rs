@@ -1,8 +1,9 @@
 use crate::constants::{WINDOW_WIDTH, WINDOW_HEIGHT, SIDEBAR_WIDTH, RIGHT_VIEW_COLOR};
-use crate::views::main_sideview;
+use cocoa::base::nil;
+use objc::{class, msg_send, sel, sel_impl};
+use crate::views::main_sideview as side_view;
 use cocoa::appkit::NSView;
 use cocoa::foundation::NSRect;
-use objc::msg_send;
 use objc::runtime::Object;
 
 

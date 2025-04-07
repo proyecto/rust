@@ -45,3 +45,10 @@ pub unsafe fn create_sideview_button(text: &str, container_frame: NSRect) -> id 
     let _: () = msg_send![button, setTitle: title];
     button
 }
+
+pub fn render(x: f64, y: f64, width: f64, height: f64) {
+    unsafe {
+        let frame = NSRect::new(NSPoint::new(x, y), NSSize::new(width, height));
+        let _ = create(frame);
+    }
+}
