@@ -9,7 +9,14 @@ use std::sync::Once;
 static INIT: Once = Once::new();
 
 extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
-    println!("🟦 Botón clickeado");
+    let identifier: id = unsafe { msg_send![this, identifier] };
+    if identifier != nil {
+        let c_str: *const std::os::raw::c_char = unsafe { msg_send![identifier, UTF8String] };
+        let rust_str = unsafe { std::ffi::CStr::from_ptr(c_str).to_string_lossy() };
+        println!("🟦 Botón clickeado: {}", rust_str);
+    } else {
+        println!("🟦 Botón clickeado (sin identificador)");
+    }
 }
 
 pub fn define_things_button_class() {
@@ -28,6 +35,11 @@ pub unsafe fn create_things_button(text: &str, frame: NSRect) -> (id, id) {
 
     let view: id = msg_send![class!(ThingsButtonView), alloc];
     let view: id = msg_send![view, initWithFrame: frame];
+
+    // ⬇️ Establecer el identificador visible desde mouse_down
+    let id_str: id = NSString::alloc(nil).init_str(text);
+    let _: () = msg_send![view, setIdentifier: id_str];
+
     let _: () = msg_send![view, setWantsLayer: true];
 
     let layer: id = msg_send![view, layer];
