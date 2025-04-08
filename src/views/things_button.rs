@@ -54,7 +54,7 @@ pub unsafe fn create_things_button(text: &str, frame: NSRect) -> (id, id) {
     let _: () = msg_send![label, setBordered: false];
     let _: () = msg_send![label, setEditable: false];
     let _: () = msg_send![label, setBackgroundColor: nil];
-    let _: () = msg_send![label, setAlignment: 1];
+    let _: () = msg_send![label, setAlignment: 0]; // 👈 Añadido
 
     let black: id = msg_send![class!(NSColor), blackColor];
     let _: () = msg_send![label, setTextColor: black];

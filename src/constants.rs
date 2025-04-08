@@ -1,9 +1,16 @@
 // src/constants.rs
 
-// Dimensiones de la ventana principal y barra lateral
+// Dimensiones de la ventana principal y barra lateral al inicio (en píxeles) si no hay valores en la base de datos
+// (en caso de que no haya una base de datos SQLite, se usan estos valores por defecto)
 pub const WINDOW_WIDTH: f64 = 800.0;
 pub const WINDOW_HEIGHT: f64 = 600.0;
 pub const SIDEBAR_WIDTH: f64 = 200.0;
+
+// Dimensiones minimas de la ventana principal y barra lateral al inicio (en píxeles)
+pub const MIN_WINDOW_WIDTH: f64 = 512.0;
+pub const MIN_WINDOW_HEIGHT: f64 = 360.0;
+pub const MIN_SIDEBAR_WIDTH: f64 = 200.0;
+
 
 // Colores
 pub const LEFT_VIEW_COLOR: (f64, f64, f64) = (0.9, 0.9, 0.9); // Gris medio

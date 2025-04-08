@@ -1,11 +1,10 @@
 // src/main_window.rs
 
 use crate::constants::{
-    RIGHT_VIEW_COLOR, SIDEBAR_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH,
+    RIGHT_VIEW_COLOR, SIDEBAR_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT
 };
 
-
-use cocoa::appkit::{NSBackingStoreType, NSView, NSWindow, NSWindowStyleMask};
+use cocoa::appkit::{NSBackingStoreType, NSView, NSWindow, NSWindowStyleMask, NSViewHeightSizable, NSViewWidthSizable, NSViewMaxXMargin};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
 use objc::declare::ClassDecl;
@@ -39,6 +38,7 @@ impl MainWindow {
                     0,
                 );
 
+            window.setMinSize_(NSSize::new(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)); // <- Aquí se establece el mínimo
             window.center();
             window.setTitle_(NSString::alloc(nil).init_str("MiApp"));
 
@@ -59,6 +59,7 @@ impl MainWindow {
 unsafe fn create_split_view(frame: NSRect) -> id {
     let split_view: id = msg_send![class!(NSSplitView), alloc];
     let split_view: id = msg_send![split_view, initWithFrame: frame];
+    let _: () = msg_send![split_view, setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
     let _: () = msg_send![split_view, setDividerStyle: 1];
     let _: () = msg_send![split_view, setVertical: true];
 
@@ -68,8 +69,15 @@ unsafe fn create_split_view(frame: NSRect) -> id {
         NSSize::new(WINDOW_WIDTH - SIDEBAR_WIDTH, WINDOW_HEIGHT),
     );
 
-    split_view.addSubview_(main_sideview::create(left_frame));
-    split_view.addSubview_(main_view::render_main_view_as_nsview(right_frame));
+    let left_view = main_sideview::create(left_frame);
+    let _: () = msg_send![left_view, setAutoresizingMask: NSViewHeightSizable | NSViewMaxXMargin];
+    let _: () = msg_send![left_view, setFrameSize: NSSize::new(SIDEBAR_WIDTH, frame.size.height)];
+    split_view.addSubview_(left_view);
+
+    let right_view = main_view::render_main_view_as_nsview(right_frame);
+    let _: () = msg_send![right_view, setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
+    split_view.addSubview_(right_view);
+
     let _: () = msg_send![split_view, adjustSubviews];
 
     split_view
