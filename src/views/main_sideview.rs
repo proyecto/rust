@@ -10,8 +10,8 @@ use objc::{class, msg_send, sel, sel_impl};
 use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSViewMinYMargin, NSViewMaxYMargin};
 
 use crate::constants::{LEFT_VIEW_COLOR};
-use crate::traits::action;
-use crate::actions::{PrintHello};
+use crate::actions::PrintHello;
+use crate::traits::Action;
 
 
 pub unsafe fn create(frame: NSRect) -> id {

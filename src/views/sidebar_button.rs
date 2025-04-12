@@ -6,6 +6,7 @@ use objc::runtime::{Class, Object, Sel};
 use objc::{class, msg_send, sel, sel_impl};
 use std::sync::Once;
 use std::sync::Mutex;
+use std::cell::RefCell;
 use once_cell::sync::Lazy;
 use crate::constants::{
     SELECTED_BUTTON_COLOR, 
@@ -19,8 +20,14 @@ use crate::constants::{
     BUTTON_MARGIN_LEFT,
     BUTTON_MARGIN_TOP
 };
-use crate::actions::{PrintHello};
 
+use lazy_static::lazy_static;
+use std::collections::HashMap;
+use crate::traits::Action;
+
+thread_local! {
+    pub static ACTIONS: RefCell<HashMap<*mut Object, Box<dyn Action>>> = RefCell::new(HashMap::new());
+}
 
 static INIT: Once = Once::new();
 
@@ -40,7 +47,7 @@ pub fn define_sidebar_button_class() {
     });
 }
 
-pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: i16, action: Action) -> (id, id) {
+pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: i16, action: Box<dyn crate::traits::Action>) -> (id, id) {
     define_sidebar_button_class();
 
     let view_frame: NSRect = msg_send![view, frame];
@@ -89,27 +96,47 @@ pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: 
     let _: () = msg_send![button, setAutoresizingMask: NSViewMaxYMargin | NSViewWidthSizable];
     let _: () = msg_send![view, addSubview: button];
 
+    ACTIONS.with(|map| {
+        map.borrow_mut().insert(button, action);
+    });
+
     BUTTONS.lock().unwrap().push(SafeButtonId(button));
 
     (button, label)
 }
 
 extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
-    let identifier: id = unsafe { msg_send![this, identifier] };
-    if identifier != nil {
+    let identifier: id = unsafe 
+    { 
+        msg_send![this, identifier] 
+    };
+    
+    if identifier != nil
+    {
+
         let c_str: *const std::os::raw::c_char = unsafe { msg_send![identifier, UTF8String] };
         let rust_str = unsafe { std::ffi::CStr::from_ptr(c_str).to_string_lossy() };
         println!("Botón clickeado: {}", rust_str);
 
         let id_this = this as *const _ as *mut Object;
 
+        ACTIONS.with(|map| {
+            if let Some(action) = map.borrow().get(&id_this) {
+                action.run();
+            } else {
+                println!("No se encontró acción para este botón.");
+            }
+        });
+
         unsafe {
             let buttons = BUTTONS.lock().unwrap();
-            for &SafeButtonId(button) in buttons.iter() {
+            for &SafeButtonId(button) in buttons.iter() 
+            {
                 let is_same = button == id_this;
                 set_active(button, nil, is_same);
             }
         }
+        
     } else {
         println!("Botón clickeado (sin identificador)");
     }

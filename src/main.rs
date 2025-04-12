@@ -5,6 +5,9 @@ mod constants;
 mod main_menu;
 mod main_window;
 pub mod views;
+pub mod traits;
+pub mod actions;
+
 
 use cocoa::appkit::{NSApp, NSApplication, NSApplicationActivationPolicyRegular};
 use cocoa::base::nil;
