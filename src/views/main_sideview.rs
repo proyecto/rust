@@ -4,13 +4,7 @@
 unsafe extern "C" {}
 
 use crate::constants::{
-        BUTTON_HEIGHT, 
-        BUTTON_PADDING_TOP, 
-        BUTTON_SPACING,
-        LEFT_VIEW_COLOR, 
-        BUTTON_MARGIN_LEFT, 
-        BUTTON_MARGIN_TOP,
-        BUTTON_WIDTH_MARGIN
+        LEFT_VIEW_COLOR
 };
 
 use crate::views::sidebar_button as sidebar_button;
@@ -41,32 +35,12 @@ pub unsafe fn create(frame: NSRect) -> id {
     let _: () = msg_send![layer, setBackgroundColor: cg_color];
     let _: () = msg_send![view, setLayer: layer];
     
-    let button1 = create_button(view, "Button1", 1);
-    let button2 = create_button(view, "Button2", 2);
+    let (button1,_) = sidebar_button::create_sidebar_button(view, "Button1", frame, 1);
+    let (button2,_) = sidebar_button::create_sidebar_button(view, "Button2", frame, 2);
 
     sidebar_button::set_active(button1, nil, true);
 
     view
-}
-
-fn create_button(view: id, label: &str, order: i16) -> id {
-    unsafe {
-        // Obtenemos el frame del contenedor
-        let view_frame: NSRect = msg_send![view, frame];
-
-        // Calculamos el ancho basado en el ancho del contenedor, restando el margen
-        let width = view_frame.size.width - BUTTON_WIDTH_MARGIN;
-
-        let button_frame = NSRect::new(
-            NSPoint::new(BUTTON_MARGIN_LEFT, BUTTON_MARGIN_TOP + (BUTTON_HEIGHT + BUTTON_SPACING) * order as f64),
-            NSSize::new(width, BUTTON_HEIGHT),
-        );
-
-        let (button, _) = sidebar_button::create_sidebar_button(label, button_frame);
-        let _: () = msg_send![button, setAutoresizingMask: NSViewMaxYMargin | NSViewWidthSizable];
-        let _: () = msg_send![view, addSubview: button];
-        button
-    }
 }
 
 pub fn render(x: f64, y: f64, width: f64, height: f64) {

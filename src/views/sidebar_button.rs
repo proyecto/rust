@@ -1,4 +1,4 @@
-use cocoa::appkit::{NSView, NSTextField};
+use cocoa::appkit::{NSView, NSTextField, NSViewWidthSizable, NSViewMaxYMargin};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
 use objc::declare::ClassDecl;
@@ -10,7 +10,12 @@ use crate::constants::{
     BUTTON_TEXT_COLOR, 
     LEFT_VIEW_COLOR, 
     LABEL_MARGIN_BOTTOM, 
-    LABEL_MARGIN_LEFT
+    LABEL_MARGIN_LEFT, 
+    BUTTON_WIDTH_MARGIN,
+    BUTTON_SPACING,
+    BUTTON_HEIGHT,
+    BUTTON_MARGIN_LEFT,
+    BUTTON_MARGIN_TOP
 };
 use std::sync::Mutex;
 use once_cell::sync::Lazy;
@@ -25,7 +30,7 @@ static BUTTONS: Lazy<Mutex<Vec<SafeButtonId>>> = Lazy::new(|| Mutex::new(Vec::ne
 pub fn define_sidebar_button_class() {
     INIT.call_once(|| {
         let superclass = class!(NSView);
-        let mut decl = ClassDecl::new("ThingsButtonView", superclass).unwrap();
+        let mut decl = ClassDecl::new("SidebarButtonView", superclass).unwrap();
         unsafe {
             decl.add_method(sel!(mouseDown:), mouse_down as extern "C" fn(&Object, Sel, id));
         }
@@ -33,21 +38,31 @@ pub fn define_sidebar_button_class() {
     });
 }
 
-pub unsafe fn create_sidebar_button(text: &str, frame: NSRect) -> (id, id) {
+pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: i16) -> (id, id) {
     define_sidebar_button_class();
 
-    let view: id = msg_send![class!(ThingsButtonView), alloc];
-    let view: id = msg_send![view, initWithFrame: frame];
+    let view_frame: NSRect = msg_send![view, frame];
+
+    let y_position = BUTTON_MARGIN_TOP + (BUTTON_HEIGHT + BUTTON_SPACING) * order as f64;
+    let button_frame = NSRect::new(
+        NSPoint::new(BUTTON_MARGIN_LEFT, y_position),
+        NSSize::new(view_frame.size.width - BUTTON_WIDTH_MARGIN, BUTTON_HEIGHT),
+    );
+
+    let button: id = msg_send![class!(SidebarButtonView), alloc];
+    let button: id = msg_send![button, initWithFrame: button_frame];
 
     // Establecer el identificador visible desde mouse_down
     let id_str: id = NSString::alloc(nil).init_str(text);
-    let _: () = msg_send![view, setIdentifier: id_str];
-    let _: () = msg_send![view, setWantsLayer: true];
+    let _: () = msg_send![button, setIdentifier: id_str];
+    let _: () = msg_send![button, setWantsLayer: true];
 
-    let layer: id = msg_send![view, layer];
+    let layer: id = msg_send![button, layer];
+    // Configuración adicional de la capa si es necesario
+
     let label_frame = NSRect::new(
         NSPoint::new(LABEL_MARGIN_LEFT, LABEL_MARGIN_BOTTOM), 
-        NSSize::new(frame.size.width - 24.0, 16.0)
+        NSSize::new(button_frame.size.width - 24.0, 16.0)
     );
 
     let label: id = msg_send![class!(NSTextField), alloc];
@@ -61,19 +76,20 @@ pub unsafe fn create_sidebar_button(text: &str, frame: NSRect) -> (id, id) {
 
     let button_text_color: id = msg_send![
         class!(NSColor),
-        colorWithCalibratedRed: 
-            BUTTON_TEXT_COLOR.0 
-            green: BUTTON_TEXT_COLOR.1 
-            blue: BUTTON_TEXT_COLOR.2 
-            alpha: 1.0
+        colorWithCalibratedRed: BUTTON_TEXT_COLOR.0
+        green: BUTTON_TEXT_COLOR.1
+        blue: BUTTON_TEXT_COLOR.2
+        alpha: 1.0
     ];
 
     let _: () = msg_send![label, setTextColor: button_text_color];
-    let _: () = msg_send![view, addSubview: label];
+    let _: () = msg_send![button, addSubview: label];
+    let _: () = msg_send![button, setAutoresizingMask: NSViewMaxYMargin | NSViewWidthSizable];
+    let _: () = msg_send![view, addSubview: button];
 
-    BUTTONS.lock().unwrap().push(SafeButtonId(view));
+    BUTTONS.lock().unwrap().push(SafeButtonId(button));
 
-    (view, label)
+    (button, label)
 }
 
 extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
