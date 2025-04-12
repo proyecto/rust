@@ -11,6 +11,7 @@ use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSViewMinYMargin, N
 
 use crate::constants::{LEFT_VIEW_COLOR};
 use crate::actions::PrintHello;
+use crate::actions::PrintHello2;
 use crate::traits::Action;
 
 
@@ -36,7 +37,7 @@ pub unsafe fn create(frame: NSRect) -> id {
     let _: () = msg_send![view, setLayer: layer];
     
     let (button1,_) = sidebar_button::create_sidebar_button(view, "Button1", frame, 1, Box::new(PrintHello));
-    let (button2,_) = sidebar_button::create_sidebar_button(view, "Button2", frame, 2, Box::new(PrintHello));
+    let (button2,_) = sidebar_button::create_sidebar_button(view, "Button2", frame, 2, Box::new(PrintHello2));
 
     sidebar_button::set_active(button1, nil, true);
 
