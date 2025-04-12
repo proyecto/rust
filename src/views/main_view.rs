@@ -7,8 +7,6 @@ use cocoa::foundation::NSRect;
 use objc::runtime::Object;
 use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable};
 
-
-
 pub fn render_main_view() {
     // Renderiza el fondo blanco
     render_background((1.0, 1.0, 1.0)); // Blanco
@@ -27,7 +25,7 @@ pub fn render_main_view_as_nsview(frame: NSRect) -> *mut Object {
 
         let color: *mut Object = msg_send![
             class!(NSColor),
-            colorWithRed: 1.0 green: 1.0 blue: 1.0 alpha: 1.0
+            colorWithRed: RIGHT_VIEW_COLOR.0 green: RIGHT_VIEW_COLOR.1 blue: RIGHT_VIEW_COLOR.2 alpha: 1.0
         ];
         let cg_color: *mut Object = msg_send![color, CGColor];
         let _: () = msg_send![layer, setBackgroundColor: cg_color];
