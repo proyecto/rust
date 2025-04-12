@@ -11,13 +11,18 @@ pub const MIN_WINDOW_WIDTH: f64 = 512.0;
 pub const MIN_WINDOW_HEIGHT: f64 = 360.0;
 pub const MIN_SIDEBAR_WIDTH: f64 = 200.0;
 
-
 // Colores
-pub const LEFT_VIEW_COLOR: (f64, f64, f64) = (0.9, 0.9, 0.9); // Gris medio
-pub const RIGHT_VIEW_COLOR: (f32, f32, f32) = (1.0, 1.0, 1.0);
+pub const LEFT_VIEW_COLOR: (f64, f64, f64) = (0.95, 0.95, 0.95); // Gris medio
+pub const RIGHT_VIEW_COLOR: (f64, f64, f64) = (1.0, 1.0, 1.0);
+pub const SELECTED_BUTTON_COLOR: (f64, f64, f64) = (0.85, 0.85, 0.85); // Gris claro
 
-// Constantes del sidebar
-pub const BUTTON_HEIGHT: f64 = 40.0;
-pub const BUTTON_MARGIN_TOP: f64 = 60.0;
+// Constantes botones sidebar
+pub const BUTTON_WIDTH_MARGIN: f64 = 20.0;
+pub const BUTTON_HEIGHT: f64 = 28.0;
 pub const BUTTON_SPACING: f64 = 10.0;
+pub const BUTTON_PADDING_TOP: f64 = 10.0;
+pub const BUTTON_MARGIN_LEFT: f64 = 10.0;
+pub const BUTTON_MARGIN_TOP: f64 = 10.0;
+
+
 

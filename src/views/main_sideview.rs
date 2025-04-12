@@ -3,7 +3,18 @@
 #[link(name = "QuartzCore", kind = "framework")]
 unsafe extern "C" {}
 
-use crate::constants::{BUTTON_HEIGHT, BUTTON_MARGIN_TOP, BUTTON_SPACING,LEFT_VIEW_COLOR};
+use crate::constants::{
+        BUTTON_HEIGHT, 
+        BUTTON_PADDING_TOP, 
+        BUTTON_SPACING,
+        LEFT_VIEW_COLOR, 
+        BUTTON_MARGIN_LEFT, 
+        BUTTON_MARGIN_TOP,
+        BUTTON_WIDTH_MARGIN
+};
+
+
+
 use crate::views::things_button as things_button;
 use cocoa::appkit::NSView;
 use cocoa::base::{id, nil};
@@ -20,6 +31,7 @@ pub unsafe fn create(frame: NSRect) -> id {
     let _: () = msg_send![view, setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
    
 
+    // Set the background color
     let background_color: id = msg_send![
         class!(NSColor),
         colorWithCalibratedRed: LEFT_VIEW_COLOR.0
@@ -35,18 +47,19 @@ pub unsafe fn create(frame: NSRect) -> id {
 
     // Create the button
     let button1_frame = NSRect::new(
-        NSPoint::new(10.0, 10.0),
-        NSSize::new(frame.size.width - 20.0, 40.0)
+        NSPoint::new(BUTTON_MARGIN_LEFT, BUTTON_MARGIN_TOP),
+        NSSize::new(frame.size.width - BUTTON_WIDTH_MARGIN, BUTTON_HEIGHT)
     );
     let (button1, _) = things_button::create_things_button("Button1", button1_frame);
     let _: () = msg_send![button1, setAutoresizingMask: NSViewMaxYMargin | NSViewWidthSizable];
     let _: () = msg_send![view, addSubview: button1];
     
-    let button2_frame = NSRect::new(
-        NSPoint::new(10.0, 60.0),
-        NSSize::new(frame.size.width - 20.0, 40.0)
-    );
     // Create the second button
+    let button2_frame = NSRect::new(
+        NSPoint::new(BUTTON_MARGIN_LEFT, BUTTON_MARGIN_TOP + BUTTON_HEIGHT + BUTTON_SPACING),
+        NSSize::new(frame.size.width - BUTTON_WIDTH_MARGIN, BUTTON_HEIGHT)
+    );
+    
     let (button2, _) = things_button::create_things_button("Button2", button2_frame);
     let _: () = msg_send![button2, setAutoresizingMask: NSViewMaxYMargin | NSViewWidthSizable];
     let _: () = msg_send![view, addSubview: button2];

@@ -5,6 +5,7 @@ use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel};
 use objc::{class, msg_send, sel, sel_impl};
 use std::sync::Once;
+use crate::constants::{SELECTED_BUTTON_COLOR};
 
 static INIT: Once = Once::new();
 
@@ -13,9 +14,11 @@ extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
     if identifier != nil {
         let c_str: *const std::os::raw::c_char = unsafe { msg_send![identifier, UTF8String] };
         let rust_str = unsafe { std::ffi::CStr::from_ptr(c_str).to_string_lossy() };
-        println!("🟦 Botón clickeado: {}", rust_str);
+        println!("Botón clickeado: {}", rust_str);
+        set_active(this, nil, true); // Cambia el color del botón al hacer clic
+
     } else {
-        println!("🟦 Botón clickeado (sin identificador)");
+        println!("Botón clickeado (sin identificador)");
     }
 }
 
@@ -45,8 +48,7 @@ pub unsafe fn create_things_button(text: &str, frame: NSRect) -> (id, id) {
     let layer: id = msg_send![view, layer];
     set_active(view, nil, false); // temp label = nil
 
-    // Texto centrado
-    let label_frame = NSRect::new(NSPoint::new(12.0, 10.0), NSSize::new(frame.size.width - 24.0, 20.0));
+    let label_frame = NSRect::new(NSPoint::new(12.0, 6.0), NSSize::new(frame.size.width - 24.0, 16.0));
     let label: id = msg_send![class!(NSTextField), alloc];
     let label: id = msg_send![label, initWithFrame: label_frame];
     let title = NSString::alloc(nil).init_str(text);
@@ -69,7 +71,7 @@ pub unsafe fn set_active(view: id, label: id, active: bool) {
     if active {
         let blue: id = msg_send![
             class!(NSColor),
-            colorWithCalibratedRed: 0.00 green: 0.48 blue: 1.00 alpha: 1.0
+            colorWithCalibratedRed: SELECTED_BUTTON_COLOR.0 green: SELECTED_BUTTON_COLOR.1 blue: SELECTED_BUTTON_COLOR.2 alpha: 1.0
         ];
         let cg_color: id = msg_send![blue, CGColor];
         let _: () = msg_send![layer, setBackgroundColor: cg_color];
