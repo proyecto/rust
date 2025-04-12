@@ -15,8 +15,7 @@ pub const MIN_SIDEBAR_WIDTH: f64 = 200.0;
 pub const RIGHT_VIEW_COLOR: (f64, f64, f64) = (1.0, 1.0, 1.0);
 pub const SELECTED_BUTTON_COLOR: (f64, f64, f64) = (0.85, 0.85, 0.85); // Gris claro
 pub const LEFT_VIEW_COLOR: (f64, f64, f64) = (0.95, 0.95, 0.95); // Gris medio
-pub const BUTTON_TEXT_COLOR: (f64, f64, f64) = (0.98, 0.98, 0.98); // Gris oscuro
-
+pub const BUTTON_TEXT_COLOR: (f64, f64, f64) = (0.25, 0.25, 0.25); // Gris oscuro
 
 // Constantes botones sidebar
 pub const BUTTON_WIDTH_MARGIN: f64 = 20.0;
@@ -25,6 +24,11 @@ pub const BUTTON_SPACING: f64 = 10.0;
 pub const BUTTON_PADDING_TOP: f64 = 10.0;
 pub const BUTTON_MARGIN_LEFT: f64 = 10.0;
 pub const BUTTON_MARGIN_TOP: f64 = 10.0;
+
+// Constantes label de los botones sidebar
+pub const LABEL_MARGIN_LEFT: f64 = 8.0;
+pub const LABEL_MARGIN_BOTTOM: f64 = 8.0;
+
 
 
 

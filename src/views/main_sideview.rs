@@ -54,14 +54,11 @@ fn create_button(view: id, label: &str, order: i16) -> id {
         // Obtenemos el frame del contenedor
         let view_frame: NSRect = msg_send![view, frame];
 
-        // Calculamos la posición vertical en función del orden
-        let y_position = BUTTON_MARGIN_TOP + (BUTTON_HEIGHT + BUTTON_SPACING) * order as f64;
-
         // Calculamos el ancho basado en el ancho del contenedor, restando el margen
         let width = view_frame.size.width - BUTTON_WIDTH_MARGIN;
 
         let button_frame = NSRect::new(
-            NSPoint::new(BUTTON_MARGIN_LEFT, y_position),
+            NSPoint::new(BUTTON_MARGIN_LEFT, BUTTON_MARGIN_TOP + (BUTTON_HEIGHT + BUTTON_SPACING) * order as f64),
             NSSize::new(width, BUTTON_HEIGHT),
         );
 

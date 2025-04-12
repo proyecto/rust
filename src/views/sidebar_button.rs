@@ -5,7 +5,13 @@ use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel};
 use objc::{class, msg_send, sel, sel_impl};
 use std::sync::Once;
-use crate::constants::{SELECTED_BUTTON_COLOR, BUTTON_TEXT_COLOR, LEFT_VIEW_COLOR};
+use crate::constants::{
+    SELECTED_BUTTON_COLOR, 
+    BUTTON_TEXT_COLOR, 
+    LEFT_VIEW_COLOR, 
+    LABEL_MARGIN_BOTTOM, 
+    LABEL_MARGIN_LEFT
+};
 use std::sync::Mutex;
 use once_cell::sync::Lazy;
 
@@ -15,6 +21,60 @@ static INIT: Once = Once::new();
 struct SafeButtonId(id);
 unsafe impl Send for SafeButtonId {}
 static BUTTONS: Lazy<Mutex<Vec<SafeButtonId>>> = Lazy::new(|| Mutex::new(Vec::new()));
+
+pub fn define_sidebar_button_class() {
+    INIT.call_once(|| {
+        let superclass = class!(NSView);
+        let mut decl = ClassDecl::new("ThingsButtonView", superclass).unwrap();
+        unsafe {
+            decl.add_method(sel!(mouseDown:), mouse_down as extern "C" fn(&Object, Sel, id));
+        }
+        decl.register();
+    });
+}
+
+pub unsafe fn create_sidebar_button(text: &str, frame: NSRect) -> (id, id) {
+    define_sidebar_button_class();
+
+    let view: id = msg_send![class!(ThingsButtonView), alloc];
+    let view: id = msg_send![view, initWithFrame: frame];
+
+    // Establecer el identificador visible desde mouse_down
+    let id_str: id = NSString::alloc(nil).init_str(text);
+    let _: () = msg_send![view, setIdentifier: id_str];
+    let _: () = msg_send![view, setWantsLayer: true];
+
+    let layer: id = msg_send![view, layer];
+    let label_frame = NSRect::new(
+        NSPoint::new(LABEL_MARGIN_LEFT, LABEL_MARGIN_BOTTOM), 
+        NSSize::new(frame.size.width - 24.0, 16.0)
+    );
+
+    let label: id = msg_send![class!(NSTextField), alloc];
+    let label: id = msg_send![label, initWithFrame: label_frame];
+    let title = NSString::alloc(nil).init_str(text);
+    let _: () = msg_send![label, setStringValue: title];
+    let _: () = msg_send![label, setBordered: false];
+    let _: () = msg_send![label, setEditable: false];
+    let _: () = msg_send![label, setBackgroundColor: nil];
+    let _: () = msg_send![label, setAlignment: 0];
+
+    let button_text_color: id = msg_send![
+        class!(NSColor),
+        colorWithCalibratedRed: 
+            BUTTON_TEXT_COLOR.0 
+            green: BUTTON_TEXT_COLOR.1 
+            blue: BUTTON_TEXT_COLOR.2 
+            alpha: 1.0
+    ];
+
+    let _: () = msg_send![label, setTextColor: button_text_color];
+    let _: () = msg_send![view, addSubview: label];
+
+    BUTTONS.lock().unwrap().push(SafeButtonId(view));
+
+    (view, label)
+}
 
 extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
     let identifier: id = unsafe { msg_send![this, identifier] };
@@ -37,80 +97,32 @@ extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
     }
 }
 
-pub fn define_sidebar_button_class() {
-    INIT.call_once(|| {
-        let superclass = class!(NSView);
-        let mut decl = ClassDecl::new("ThingsButtonView", superclass).unwrap();
-        unsafe {
-            decl.add_method(sel!(mouseDown:), mouse_down as extern "C" fn(&Object, Sel, id));
-        }
-        decl.register();
-    });
-}
-
-pub unsafe fn create_sidebar_button(text: &str, frame: NSRect) -> (id, id) {
-    define_sidebar_button_class();
-
-    let view: id = msg_send![class!(ThingsButtonView), alloc];
-    let view: id = msg_send![view, initWithFrame: frame];
-
-    // Establecer el identificador visible desde mouse_down
-    let id_str: id = NSString::alloc(nil).init_str(text);
-    let _: () = msg_send![view, setIdentifier: id_str];
-
-    let _: () = msg_send![view, setWantsLayer: true];
-
-    let layer: id = msg_send![view, layer];
-    let label_frame = NSRect::new(
-        NSPoint::new(12.0, 6.0), 
-        NSSize::new(frame.size.width - 24.0, 16.0)
-    );
-
-    let label: id = msg_send![class!(NSTextField), alloc];
-    let label: id = msg_send![label, initWithFrame: label_frame];
-    let title = NSString::alloc(nil).init_str(text);
-    let _: () = msg_send![label, setStringValue: title];
-    let _: () = msg_send![label, setBordered: false];
-    let _: () = msg_send![label, setEditable: false];
-    let _: () = msg_send![label, setBackgroundColor: nil];
-    let _: () = msg_send![label, setAlignment: 0];
-
-    let black: id = msg_send![class!(NSColor), blackColor];
-    let _: () = msg_send![label, setTextColor: black];
-    let _: () = msg_send![view, addSubview: label];
-
-    BUTTONS.lock().unwrap().push(SafeButtonId(view));
-
-    (view, label)
-}
-
 pub unsafe fn set_active(view: id, label: id, active: bool) {
     let layer: id = msg_send![view, layer];
 
     if active {
         let darkgrey: id = msg_send![
             class!(NSColor),
-            colorWithCalibratedRed: SELECTED_BUTTON_COLOR.0 green: SELECTED_BUTTON_COLOR.1 blue: SELECTED_BUTTON_COLOR.2 alpha: 1.0
+            colorWithCalibratedRed: 
+                SELECTED_BUTTON_COLOR.0 
+                green: SELECTED_BUTTON_COLOR.1 
+                blue: SELECTED_BUTTON_COLOR.2 
+                alpha: 1.0
         ];
         let cg_color: id = msg_send![darkgrey, CGColor];
         let _: () = msg_send![layer, setBackgroundColor: cg_color];
 
-        if label != nil {
-            let white: id = msg_send![class!(NSColor), whiteColor];
-            let _: () = msg_send![label, setTextColor: white];
-        }
     } else {
         let bggray: id = msg_send![
             class!(NSColor),
-            colorWithCalibratedRed: LEFT_VIEW_COLOR.0 green: LEFT_VIEW_COLOR.1 blue: LEFT_VIEW_COLOR.2 alpha: 1.0
+            colorWithCalibratedRed: 
+                LEFT_VIEW_COLOR.0 
+                green: LEFT_VIEW_COLOR.1 
+                blue: LEFT_VIEW_COLOR.2 
+                alpha: 1.0
         ];
         let cg_color: id = msg_send![bggray, CGColor];
         let _: () = msg_send![layer, setBackgroundColor: cg_color];
-
-        if label != nil {
-            let black: id = msg_send![class!(NSColor), blackColor];
-            let _: () = msg_send![label, setTextColor: black];
-        }
     }
 
     let _: () = msg_send![layer, setCornerRadius: 9.0];
