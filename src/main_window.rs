@@ -21,9 +21,10 @@ impl MainWindow {
     pub fn create() -> Self {
         unsafe {
             let style = NSWindowStyleMask::NSTitledWindowMask
-                | NSWindowStyleMask::NSClosableWindowMask
-                | NSWindowStyleMask::NSResizableWindowMask
-                | NSWindowStyleMask::NSMiniaturizableWindowMask;
+            | NSWindowStyleMask::NSClosableWindowMask
+            | NSWindowStyleMask::NSResizableWindowMask
+            | NSWindowStyleMask::NSMiniaturizableWindowMask
+            | NSWindowStyleMask::NSFullSizeContentViewWindowMask;
 
             let frame = NSRect::new(
                 NSPoint::new(0.0, 0.0),
@@ -40,7 +41,9 @@ impl MainWindow {
 
             window.setMinSize_(NSSize::new(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)); // <- Aquí se establece el mínimo
             window.center();
-            window.setTitle_(NSString::alloc(nil).init_str("MiApp"));
+            let _: () = msg_send![window, setTitlebarAppearsTransparent: true];
+            let _: () = msg_send![window, setMovableByWindowBackground: true];
+            window.setTitle_(NSString::alloc(nil).init_str(""));
 
             let content_view: id = window.contentView();
             content_view.addSubview_(create_split_view(frame));

@@ -113,11 +113,6 @@ extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
     
     if identifier != nil
     {
-
-        let c_str: *const std::os::raw::c_char = unsafe { msg_send![identifier, UTF8String] };
-        let rust_str = unsafe { std::ffi::CStr::from_ptr(c_str).to_string_lossy() };
-        println!("Botón clickeado: {}", rust_str);
-
         let id_this = this as *const _ as *mut Object;
 
         ACTIONS.with(|map| {

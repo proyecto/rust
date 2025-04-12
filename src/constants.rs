@@ -1,3 +1,6 @@
+use crate::traits::Action;
+use crate::actions::PrintHello;
+
 // src/constants.rs
 
 // Dimensiones de la ventana principal y barra lateral al inicio (en píxeles) si no hay valores en la base de datos
@@ -24,6 +27,7 @@ pub const BUTTON_SPACING: f64 = 10.0;
 pub const BUTTON_PADDING_TOP: f64 = 10.0;
 pub const BUTTON_MARGIN_LEFT: f64 = 10.0;
 pub const BUTTON_MARGIN_TOP: f64 = 10.0;
+pub const BUTTONS: [(&str, PrintHello);5] = [("label1",PrintHello),("label2",PrintHello),("label3",PrintHello),("label4",PrintHello),("label5",PrintHello)];
 
 // Constantes label de los botones sidebar
 pub const LABEL_MARGIN_LEFT: f64 = 8.0;

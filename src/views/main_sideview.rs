@@ -9,7 +9,7 @@ use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
 use objc::{class, msg_send, sel, sel_impl};
 use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSViewMinYMargin, NSViewMaxYMargin};
 
-use crate::constants::{LEFT_VIEW_COLOR};
+use crate::constants::{LEFT_VIEW_COLOR, BUTTONS};
 use crate::actions::PrintHello;
 use crate::actions::PrintHello2;
 use crate::traits::Action;
@@ -35,6 +35,7 @@ pub unsafe fn create(frame: NSRect) -> id {
     let layer: id = msg_send![layer, init];
     let _: () = msg_send![layer, setBackgroundColor: cg_color];
     let _: () = msg_send![view, setLayer: layer];
+    
     
     let (button1,_) = sidebar_button::create_sidebar_button(view, "Button1", frame, 1, Box::new(PrintHello));
     let (button2,_) = sidebar_button::create_sidebar_button(view, "Button2", frame, 2, Box::new(PrintHello2));
