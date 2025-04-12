@@ -1,11 +1,6 @@
 // src/main_sideview.rs
 
 #[link(name = "QuartzCore", kind = "framework")]
-unsafe extern "C" {}
-
-use crate::constants::{
-        LEFT_VIEW_COLOR
-};
 
 use crate::views::sidebar_button as sidebar_button;
 use cocoa::appkit::NSView;
@@ -13,6 +8,11 @@ use cocoa::base::{id, nil};
 use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
 use objc::{class, msg_send, sel, sel_impl};
 use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSViewMinYMargin, NSViewMaxYMargin};
+
+use crate::constants::{LEFT_VIEW_COLOR};
+use crate::traits::action;
+use crate::actions::{PrintHello};
+
 
 pub unsafe fn create(frame: NSRect) -> id {
     let view: id = msg_send![class!(NSView), alloc];
@@ -35,8 +35,8 @@ pub unsafe fn create(frame: NSRect) -> id {
     let _: () = msg_send![layer, setBackgroundColor: cg_color];
     let _: () = msg_send![view, setLayer: layer];
     
-    let (button1,_) = sidebar_button::create_sidebar_button(view, "Button1", frame, 1);
-    let (button2,_) = sidebar_button::create_sidebar_button(view, "Button2", frame, 2);
+    let (button1,_) = sidebar_button::create_sidebar_button(view, "Button1", frame, 1, Box::new(PrintHello));
+    let (button2,_) = sidebar_button::create_sidebar_button(view, "Button2", frame, 2, Box::new(PrintHello));
 
     sidebar_button::set_active(button1, nil, true);
 

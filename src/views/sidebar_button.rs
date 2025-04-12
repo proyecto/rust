@@ -5,6 +5,8 @@ use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel};
 use objc::{class, msg_send, sel, sel_impl};
 use std::sync::Once;
+use std::sync::Mutex;
+use once_cell::sync::Lazy;
 use crate::constants::{
     SELECTED_BUTTON_COLOR, 
     BUTTON_TEXT_COLOR, 
@@ -17,8 +19,8 @@ use crate::constants::{
     BUTTON_MARGIN_LEFT,
     BUTTON_MARGIN_TOP
 };
-use std::sync::Mutex;
-use once_cell::sync::Lazy;
+use crate::actions::{PrintHello};
+
 
 static INIT: Once = Once::new();
 
@@ -38,7 +40,7 @@ pub fn define_sidebar_button_class() {
     });
 }
 
-pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: i16) -> (id, id) {
+pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: i16, action: Action) -> (id, id) {
     define_sidebar_button_class();
 
     let view_frame: NSRect = msg_send![view, frame];
