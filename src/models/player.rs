@@ -70,21 +70,23 @@ impl Player {
     }
 
     pub fn save(&self, conn: &Connection, week: u32) -> Result<()> {
+        let fecha = chrono::Utc::now().to_rfc3339();
+    
         conn.execute(
             "INSERT OR REPLACE INTO players (
                 player_id, name, age, age_days, tsi, form,
                 stamina, keeper, playmaker, scorer, passing, winger, defender, set_pieces,
                 experience, loyalty, mother_club_bonus, injury_level, is_injured, specialty,
-                salary, is_abroad, country_id, country_name, week
+                salary, is_abroad, country_id, country_name, week, fecha
             ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )",
             params![
                 self.player_id, self.name, self.age, self.age_days, self.tsi, self.form,
                 self.stamina, self.keeper, self.playmaker, self.scorer, self.passing, self.winger, self.defender, self.set_pieces,
                 self.experience, self.loyalty, self.mother_club_bonus as i32, self.injury_level, self.is_injured as i32,
                 self.specialty.clone().unwrap_or_default(),
-                self.salary, self.is_abroad as i32, self.country_id, self.country_name, week
+                self.salary, self.is_abroad as i32, self.country_id, self.country_name, week, fecha
             ],
         )?;
         Ok(())

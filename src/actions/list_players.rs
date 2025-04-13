@@ -103,13 +103,59 @@ impl From<XmlPlayer> for Player {
 impl Action for ListPlayers {
     fn run(&self) -> Result<(), Box<dyn Error>> {
         let xml = get("https://custm.es/players.xml")?.text()?;
+
+        println!("XML recibido:\n{}", &xml);
+
         let wrapper: PlayersWrapper = from_str(&xml)?;
 
+        println!("Jugadores encontrados: {}", wrapper.players.len());
+
         let conn = Connection::open("data/test.db")?;
+        println!("✅ Conexión a base de datos abierta correctamente");
+        conn.execute_batch(r#"
+            CREATE TABLE IF NOT EXISTS players (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                player_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                age INTEGER,
+                age_days INTEGER,
+                tsi INTEGER,
+                form INTEGER,
+                stamina INTEGER,
+                keeper INTEGER,
+                playmaker INTEGER,
+                scorer INTEGER,
+                passing INTEGER,
+                winger INTEGER,
+                defender INTEGER,
+                set_pieces INTEGER,
+                experience INTEGER,
+                loyalty INTEGER,
+                mother_club_bonus INTEGER,
+                injury_level INTEGER,
+                is_injured INTEGER,
+                specialty TEXT,
+                salary INTEGER,
+                is_abroad INTEGER,
+                country_id INTEGER,
+                country_name TEXT,
+                week INTEGER NOT NULL,
+                fecha TEXT,
+                UNIQUE(player_id, week)
+            );
+        "#)?;
+
+        let affected = conn.execute(
+            "INSERT INTO players (player_id, name, week) VALUES (?, ?, ?)",
+            rusqlite::params![123456, "Test", 99],
+        )?;
+        println!("Filas afectadas: {}", affected);
+
         let week = Utc::now().iso_week().week() as u32;
 
         for xml_player in wrapper.players {
             let player: Player = xml_player.into();
+            println!("Procesando jugador: {}", player.name); // 👈 aseguramos que entra al loop
             player.save(&conn, week)?;
         }
 
