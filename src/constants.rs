@@ -1,5 +1,6 @@
 use crate::traits::Action;
-use crate::actions::PrintHello;
+use crate::actions::{PrintHello, PrintHello2, ListPlayers};
+
 
 // src/constants.rs
 
@@ -27,7 +28,22 @@ pub const BUTTON_SPACING: f64 = 10.0;
 pub const BUTTON_PADDING_TOP: f64 = 10.0;
 pub const BUTTON_MARGIN_LEFT: f64 = 10.0;
 pub const BUTTON_MARGIN_TOP: f64 = 10.0;
-pub const BUTTONS: [(&str, PrintHello);5] = [("label1",PrintHello),("label2",PrintHello),("label3",PrintHello),("label4",PrintHello),("label5",PrintHello)];
+
+// Define una función que devuelve las entradas
+pub fn get_buttons() -> Vec<(i16,&'static str, Box<dyn Action>)> {
+    vec![
+        (1,"👨🏻‍🦱​ Plantilla", Box::new(ListPlayers)),
+        (2,"⚽​ Partidos", Box::new(PrintHello2)),
+        (3,"🏟️ Estadio", Box::new(PrintHello)),
+        /*(4,"Button 4", Box::new(PrintHello2)),
+        (5,"Button 5", Box::new(PrintHello)),
+        (6,"Button 6", Box::new(PrintHello2)),
+        (7,"Button 7", Box::new(PrintHello)),
+        (8,"Button 8", Box::new(PrintHello2)),
+        (9,"Button 9", Box::new(PrintHello))*/
+    ]
+}
+
 
 // Constantes label de los botones sidebar
 pub const LABEL_MARGIN_LEFT: f64 = 8.0;

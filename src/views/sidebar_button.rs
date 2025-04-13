@@ -170,3 +170,8 @@ pub unsafe fn set_active(view: id, label: id, active: bool) {
     let _: () = msg_send![layer, setShadowOffset: NSSize::new(0.0, -1.0)];
     let _: () = msg_send![layer, setShadowRadius: 3.0];
 }
+
+
+pub unsafe fn sanitize_label(label: &str) -> String {
+    label.to_lowercase().replace(" ", "_").replace("-", "_")
+}
