@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 
-pub trait Action: Debug + Send + Sync {
-    fn run(&self);
+// src/traits/mod.rs
+pub trait Action {
+    fn run(&self) -> Result<(), Box<dyn std::error::Error>>;
 }

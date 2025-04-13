@@ -1,6 +1,6 @@
 
 use rusqlite::{Connection, Row, Result, params};
-use crate::modelos::model::Model;
+use crate::models::model::Model;
 
 #[derive(Debug, Clone)]
 pub struct Player {

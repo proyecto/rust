@@ -7,6 +7,7 @@ mod main_window;
 pub mod views;
 pub mod traits;
 pub mod actions;
+pub mod models;
 
 
 use cocoa::appkit::{NSApp, NSApplication, NSApplicationActivationPolicyRegular};
