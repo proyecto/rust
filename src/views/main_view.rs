@@ -6,6 +6,8 @@ use cocoa::appkit::NSView;
 use cocoa::foundation::NSRect;
 use objc::runtime::Object;
 use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable};
+use crate::views::player_table::create_player_table;
+
 
 pub fn render_main_view() {
     // Renderiza el fondo blanco
@@ -19,6 +21,8 @@ pub fn render_main_view() {
 pub fn render_main_view_as_nsview(frame: NSRect) -> *mut Object {
     unsafe {
         let view: *mut Object = NSView::alloc(nil).initWithFrame_(frame);
+        let table_scroll_view = create_player_table(frame);
+        view.addSubview_(table_scroll_view);
         let _: () = msg_send![view, setWantsLayer: true];
         let _: () = msg_send![view, setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
         let layer: *mut Object = msg_send![view, layer];

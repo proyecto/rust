@@ -100,4 +100,26 @@ impl Player {
         )
     }
 
+    pub fn latest_versions(conn: &Connection) -> Result<Vec<Player>> {
+        let sql = r#"
+            SELECT *
+            FROM players
+            WHERE (player_id, insert_date) IN (
+                SELECT player_id, MAX(insert_date)
+                FROM players
+                GROUP BY player_id
+            )
+        "#;
+
+        let mut stmt = conn.prepare(sql)?;
+        let iter = stmt.query_map([], |row| Player::from_row(row))?;
+
+        let mut players = Vec::new();
+        for player in iter {
+            players.push(player?);
+        }
+
+        Ok(players)
+    }
+
 }

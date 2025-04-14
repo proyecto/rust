@@ -92,6 +92,18 @@ pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: 
     ];
 
     let _: () = msg_send![label, setTextColor: button_text_color];
+    let font_name = NSString::alloc(nil).init_str("Helvetica"); // o "Helvetica", "Arial", etc.
+    let font_size: f64 = 13.0;
+    let font: id = msg_send![class!(NSFont), boldSystemFontOfSize: font_size];
+    let _: () = msg_send![label, setFont: font];
+
+    if font != nil {
+        let _: () = msg_send![label, setFont: font];
+    } else {
+        println!("Fuente no encontrada");
+    }
+
+
     let _: () = msg_send![button, addSubview: label];
     let _: () = msg_send![button, setAutoresizingMask: NSViewMaxYMargin | NSViewWidthSizable];
     let _: () = msg_send![view, addSubview: button];
@@ -165,10 +177,10 @@ pub unsafe fn set_active(view: id, label: id, active: bool) {
         let _: () = msg_send![layer, setBackgroundColor: cg_color];
     }
 
-    let _: () = msg_send![layer, setCornerRadius: 9.0];
+    let _: () = msg_send![layer, setCornerRadius: 5.0];
     let _: () = msg_send![layer, setShadowOpacity: 0.08];
     let _: () = msg_send![layer, setShadowOffset: NSSize::new(0.0, -1.0)];
-    let _: () = msg_send![layer, setShadowRadius: 3.0];
+    let _: () = msg_send![layer, setShadowRadius: 0.5];
 }
 
 

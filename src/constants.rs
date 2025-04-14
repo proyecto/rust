@@ -24,18 +24,19 @@ pub const BUTTON_TEXT_COLOR: (f64, f64, f64) = (0.25, 0.25, 0.25); // Gris oscur
 
 // Constantes botones sidebar
 pub const BUTTON_WIDTH_MARGIN: f64 = 20.0;
-pub const BUTTON_HEIGHT: f64 = 28.0;
-pub const BUTTON_SPACING: f64 = 10.0;
+pub const BUTTON_HEIGHT: f64 = 24.0;
+pub const BUTTON_SPACING: f64 = 0.0;
 pub const BUTTON_PADDING_TOP: f64 = 10.0;
 pub const BUTTON_MARGIN_LEFT: f64 = 10.0;
-pub const BUTTON_MARGIN_TOP: f64 = 10.0;
+pub const BUTTON_MARGIN_TOP: f64 = 0.0;
 
 // Define una función que devuelve las entradas
 pub fn get_buttons() -> Vec<(i16,&'static str, Box<dyn Action>)> {
     vec![
-        (1,"👨🏻‍🦱​ Plantilla", Box::new(ListPlayers)),
-        (2,"⚽​ Partidos", Box::new(PrintHello2)),
-        (3,"🏟️ Estadio", Box::new(PrintHello)),
+        (2,"🚀 Actualizaciones", Box::new(PrintHello)),
+        (4,"👨🏻‍🦱​ Plantilla", Box::new(ListPlayers)),
+        (5,"⚽​ Partidos", Box::new(PrintHello2)),
+        (6,"🏟️ Estadio", Box::new(PrintHello)),
         /*(4,"Button 4", Box::new(PrintHello2)),
         (5,"Button 5", Box::new(PrintHello)),
         (6,"Button 6", Box::new(PrintHello2)),
@@ -48,7 +49,7 @@ pub fn get_buttons() -> Vec<(i16,&'static str, Box<dyn Action>)> {
 
 // Constantes label de los botones sidebar
 pub const LABEL_MARGIN_LEFT: f64 = 8.0;
-pub const LABEL_MARGIN_BOTTOM: f64 = 8.0;
+pub const LABEL_MARGIN_BOTTOM: f64 = 4.0;
 
 
 

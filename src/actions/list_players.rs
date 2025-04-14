@@ -139,11 +139,9 @@ impl Action for ListPlayers {
 
         for xml_player in wrapper.players {
             let player: Player = xml_player.into();
-            println!("{}",player.toStrign());
             player.save(&conn)?;
         }
         
-        println!("Jugadores insertados correctamente.");
         Ok(())
     }
 }

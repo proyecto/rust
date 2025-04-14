@@ -39,7 +39,7 @@ impl MainWindow {
                     0,
                 );
 
-            window.setMinSize_(NSSize::new(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)); // <- Aquí se establece el mínimo
+            window.setMinSize_(NSSize::new(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT));
             window.center();
             let _: () = msg_send![window, setTitlebarAppearsTransparent: true];
             let _: () = msg_send![window, setMovableByWindowBackground: true];
@@ -58,13 +58,12 @@ impl MainWindow {
     }
 }
 
-/// Crea un NSSplitView con dos subviews: una gris (sidebar) y una blanca (contenido)
 unsafe fn create_split_view(frame: NSRect) -> id {
     let split_view: id = msg_send![class!(NSSplitView), alloc];
     let split_view: id = msg_send![split_view, initWithFrame: frame];
     let _: () = msg_send![split_view, setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
-    let _: () = msg_send![split_view, setDividerStyle: 1];
     let _: () = msg_send![split_view, setVertical: true];
+    let _: () = msg_send![split_view, setDividerStyle: 2]; // Thin divider
 
     let left_frame = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(SIDEBAR_WIDTH, WINDOW_HEIGHT));
     let right_frame = NSRect::new(
@@ -86,7 +85,6 @@ unsafe fn create_split_view(frame: NSRect) -> id {
     split_view
 }
 
-/// Crea una vista con color de fondo personalizado (usando NSColor)
 unsafe fn create_colored_view(frame: NSRect, rgb: (f32, f32, f32)) -> id {
     let view: id = NSView::alloc(nil).initWithFrame_(frame);
     let _: () = msg_send![view, setWantsLayer: true];
@@ -105,7 +103,6 @@ unsafe fn create_colored_view(frame: NSRect, rgb: (f32, f32, f32)) -> id {
     view
 }
 
-/// Crea la clase delegate que termina la app al cerrar la ventana
 unsafe fn create_delegate_class() -> *const Class {
     static mut CLASS_PTR: *const Class = std::ptr::null();
 
