@@ -16,10 +16,11 @@ pub const MIN_WINDOW_HEIGHT: f64 = 360.0;
 pub const MIN_SIDEBAR_WIDTH: f64 = 200.0;
 
 // Colores
-pub const RIGHT_VIEW_COLOR: (f64, f64, f64) = (1.0, 1.0, 1.0);
+pub const RIGHT_VIEW_COLOR: (f64, f64, f64) = (0.980, 0.980, 0.983); // Gris medio
 pub const SELECTED_BUTTON_COLOR: (f64, f64, f64) = (0.85, 0.85, 0.85); // Gris claro
-pub const LEFT_VIEW_COLOR: (f64, f64, f64) = (0.95, 0.95, 0.95); // Gris medio
-pub const BUTTON_TEXT_COLOR: (f64, f64, f64) = (0.25, 0.25, 0.25); // Gris oscuro
+pub const LEFT_VIEW_COLOR: (f64, f64, f64) = (0.960, 0.966, 0.973); // Gris medio
+pub const BUTTON_TEXT_COLOR: (f64, f64, f64) = (0.25, 0.25, 0.25); // Gris oscuroÇ
+
 
 // Constantes botones sidebar
 pub const BUTTON_WIDTH_MARGIN: f64 = 20.0;

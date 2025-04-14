@@ -27,7 +27,6 @@ fn main() {
     unsafe {
         let _pool = NSAutoreleasePool::new(nil);
         let app = NSApp();
-        //let conn = Connection::open("test.db");
 
         app.setActivationPolicy_(NSApplicationActivationPolicyRegular);
 
