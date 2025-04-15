@@ -1,6 +1,5 @@
-use std::fmt::Debug;
+use std::error::Error;
 
-// src/traits/mod.rs
 pub trait Action {
-    fn run(&self) -> Result<(), Box<dyn std::error::Error>>;
+    fn run(&self) -> Result<(), Box<dyn Error>>;
 }

@@ -8,7 +8,7 @@ use objc::runtime::Object;
 use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable};
 use crate::views::player_table::{create_player_table, attach_data_source};
 use crate::models::player::Player;
-use rusqlite::Connection;
+use crate::libs::database;
 
 pub fn render_main_view() {
     render_background((1.0, 1.0, 1.0));
@@ -22,7 +22,7 @@ pub fn render_main_view_as_nsview(frame: NSRect) -> *mut Object {
         let view: *mut Object = NSView::alloc(nil).initWithFrame_(frame);
 
         println!("🗄️ Abriendo base de datos...");
-        let conn = Connection::open("data/test.db").expect("❌ No se pudo abrir la base de datos");
+        let conn = database::get_connection().lock().unwrap();
 
         println!("📊 Cargando jugadores...");
         let players: Vec<Player> = Player::latest_versions(&conn).expect("❌ Error al cargar jugadores");

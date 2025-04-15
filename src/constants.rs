@@ -1,6 +1,5 @@
 use crate::traits::Action;
-use crate::actions::{PrintHello, PrintHello2, ListPlayers};
-
+use crate::actions::{PrintHello, PrintHello2, ListPlayers, Updates};
 
 // src/constants.rs
 
@@ -33,16 +32,10 @@ pub const BUTTON_MARGIN_TOP: f64 = 0.0;
 // Define una función que devuelve las entradas
 pub fn get_buttons() -> Vec<(i16,&'static str, Box<dyn Action>)> {
     vec![
-        (2,"🚀 Actualizaciones", Box::new(PrintHello)),
+        (2,"🚀 Actualizaciones", Box::new(Updates)),
         (4,"👨🏻‍🦱​ Plantilla", Box::new(ListPlayers)),
         (5,"⚽​ Partidos", Box::new(PrintHello2)),
         (6,"🏟️ Estadio", Box::new(PrintHello)),
-        /*(4,"Button 4", Box::new(PrintHello2)),
-        (5,"Button 5", Box::new(PrintHello)),
-        (6,"Button 6", Box::new(PrintHello2)),
-        (7,"Button 7", Box::new(PrintHello)),
-        (8,"Button 8", Box::new(PrintHello2)),
-        (9,"Button 9", Box::new(PrintHello))*/
     ]
 }
 
@@ -51,6 +44,9 @@ pub fn get_buttons() -> Vec<(i16,&'static str, Box<dyn Action>)> {
 pub const LABEL_MARGIN_LEFT: f64 = 8.0;
 pub const LABEL_MARGIN_BOTTOM: f64 = 5.0;
 pub const LABEL_FONT_SIZE: f64 = 15.0;
+
+// Ruta base de datos SQLite
+pub const SQLITE_DB_PATH: &str = "data/test.db";
 
 
 

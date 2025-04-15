@@ -2,8 +2,9 @@ use std::error::Error;
 use reqwest::blocking::get;
 use serde::Deserialize;
 use serde_xml_rs::from_str;
-use rusqlite::Connection;
 use chrono::{Utc, Datelike};
+use crate::libs::database;
+
 
 use crate::models::player::Player;
 use crate::traits::Action;
@@ -104,7 +105,7 @@ impl Action for ListPlayers {
     fn run(&self) -> Result<(), Box<dyn Error>> {
         let xml = get("https://custm.es/players.xml")?.text()?;
         let wrapper: PlayersWrapper = from_str(&xml)?;
-        let conn = Connection::open("data/test.db")?;
+        let conn = database::get_connection().lock().unwrap();
 
         conn.execute_batch(r#"
             CREATE TABLE IF NOT EXISTS players (

@@ -1,6 +1,11 @@
 extern crate cocoa;
 extern crate objc;
 
+use cocoa::appkit::{NSApp, NSApplication, NSApplicationActivationPolicyRegular};
+use cocoa::base::nil;
+use cocoa::foundation::NSAutoreleasePool;
+use objc::{class, msg_send, sel, sel_impl};
+
 mod constants;
 mod main_menu;
 mod main_window;
@@ -8,14 +13,10 @@ pub mod views;
 pub mod traits;
 pub mod actions;
 pub mod models;
+pub mod libs;
 
+use crate::libs::database;
 
-use cocoa::appkit::{NSApp, NSApplication, NSApplicationActivationPolicyRegular};
-use cocoa::base::nil;
-use cocoa::foundation::NSAutoreleasePool;
-use objc::{class, msg_send, sel, sel_impl};
-
-//use rusqlite::Connection;
 
 fn main() {
 
@@ -25,9 +26,16 @@ fn main() {
     }
 
     unsafe {
+        // Crea un pool de autorelease para gestionar la memoria de los objetos Objective-C.
         let _pool = NSAutoreleasePool::new(nil);
+
+        // Inicializa la aplicación Cocoa.
         let app = NSApp();
 
+        // Crea una conexión a la base de datos SQLite.
+        database::init(SQLITE_DB_PATH);
+
+        // Establece la política de activación de la aplicación.
         app.setActivationPolicy_(NSApplicationActivationPolicyRegular);
 
         // Llama a la función de configuración del menú desde el módulo 'menu'

@@ -36,7 +36,7 @@ pub unsafe fn create(frame: NSRect) -> id {
     let _: () = msg_send![layer, setBackgroundColor: cg_color];
     let _: () = msg_send![view, setLayer: layer];
     
-    
+
     for (index, label, action) in get_buttons() 
     {
         let button_id = format!("button_{}", sidebar_button::sanitize_label(label));
