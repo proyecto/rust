@@ -49,7 +49,8 @@ pub fn get_buttons() -> Vec<(i16,&'static str, Box<dyn Action>)> {
 
 // Constantes label de los botones sidebar
 pub const LABEL_MARGIN_LEFT: f64 = 8.0;
-pub const LABEL_MARGIN_BOTTOM: f64 = 4.0;
+pub const LABEL_MARGIN_BOTTOM: f64 = 5.0;
+pub const LABEL_FONT_SIZE: f64 = 15.0;
 
 
 

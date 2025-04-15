@@ -13,7 +13,8 @@ use crate::constants::{
     BUTTON_TEXT_COLOR, 
     LEFT_VIEW_COLOR, 
     LABEL_MARGIN_BOTTOM, 
-    LABEL_MARGIN_LEFT, 
+    LABEL_MARGIN_LEFT,
+    LABEL_FONT_SIZE, 
     BUTTON_WIDTH_MARGIN,
     BUTTON_SPACING,
     BUTTON_HEIGHT,
@@ -92,9 +93,10 @@ pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: 
     ];
 
     let _: () = msg_send![label, setTextColor: button_text_color];
-    let font_name = NSString::alloc(nil).init_str("Helvetica"); // o "Helvetica", "Arial", etc.
-    let font_size: f64 = 13.0;
-    let font: id = msg_send![class!(NSFont), boldSystemFontOfSize: font_size];
+    
+    let font_size: f64 = LABEL_FONT_SIZE;
+    let font_name = NSString::alloc(nil).init_str("Helvetica"); // o "Arial", "Menlo", etc.
+    let font: id = msg_send![class!(NSFont), fontWithName:font_name size:font_size];
     let _: () = msg_send![label, setFont: font];
 
     if font != nil {
@@ -102,7 +104,7 @@ pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: 
     } else {
         println!("Fuente no encontrada");
     }
-
+    
 
     let _: () = msg_send![button, addSubview: label];
     let _: () = msg_send![button, setAutoresizingMask: NSViewMaxYMargin | NSViewWidthSizable];

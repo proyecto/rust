@@ -69,6 +69,20 @@ impl Player {
         })
     }
 
+    pub fn best_position(&self) -> &'static str {
+        let mut scores = vec![
+            ("Portero", self.keeper as u32 + self.stamina as u32 + self.set_pieces as u32),
+            ("Defensa", self.defender as u32 + self.stamina as u32),
+            ("Lateral", self.defender as u32 + self.winger as u32 + self.stamina as u32),
+            ("Mediocentro", self.playmaker as u32 + self.passing as u32 + self.stamina as u32),
+            ("Extremo", self.winger as u32 + self.passing as u32 + self.stamina as u32),
+            ("Delantero", self.scorer as u32 + self.passing as u32 + self.playmaker as u32),
+        ];
+    
+        scores.sort_by(|a, b| b.1.cmp(&a.1)); // Orden descendente
+        scores[0].0
+    }
+
     pub fn save(&self, conn: &Connection) -> Result<()> {
     
         conn.execute(
