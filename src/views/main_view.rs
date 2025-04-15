@@ -29,13 +29,13 @@ pub fn render_main_view_as_nsview(frame: NSRect) -> *mut Object {
 
         println!("🧱 Creando tabla...");
         let table_frame = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(frame.size.width, frame.size.height));
-        let (container_view, table_view) = create_player_table(table_frame);
+        let (scroll_view, table_view) = create_player_table(table_frame);
 
         println!("🔗 Conectando data source...");
         attach_data_source(table_view, players);
 
         println!("📥 Añadiendo tabla a la vista principal...");
-        let _: () = msg_send![view, addSubview: container_view];
+        let _: () = msg_send![view, addSubview: scroll_view];
 
         let _: () = msg_send![view, setWantsLayer: true];
         let _: () = msg_send![view, setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];

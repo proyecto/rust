@@ -112,8 +112,18 @@ pub unsafe fn attach_data_source(table_view: id, players: Vec<Player>) {
 
 pub fn create_player_table(frame: NSRect) -> (id, id) {
     unsafe {
+        // Márgenes
+        let title_margin_top = 16.0;
+        let title_margin_bottom = 12.0;
+        let title_height = 30.0;
+        let separator_height = 1.0;
+        let total_header_height = title_margin_top + title_height + title_margin_bottom + separator_height;
+
         // Título superior
-        let label_frame = NSRect::new(NSPoint::new(0.0, frame.size.height - 34.0), NSSize::new(frame.size.width, 30.0));
+        let label_frame = NSRect::new(
+            NSPoint::new(0.0, frame.size.height - title_height - title_margin_top),
+            NSSize::new(frame.size.width, title_height)
+        );
         let label: id = msg_send![class!(NSTextField), alloc];
         let label: id = msg_send![label, initWithFrame: label_frame];
         let _: () = msg_send![label, setStringValue: NSString::alloc(nil).init_str("🧍 Jugadores")];
@@ -125,7 +135,10 @@ pub fn create_player_table(frame: NSRect) -> (id, id) {
         let _: () = msg_send![label, setAutoresizingMask: NSViewMinYMargin | NSViewWidthSizable];
 
         // Separador
-        let separator_frame = NSRect::new(NSPoint::new(0.0, frame.size.height - 36.0), NSSize::new(frame.size.width, 1.0));
+        let separator_frame = NSRect::new(
+            NSPoint::new(0.0, frame.size.height - total_header_height),
+            NSSize::new(frame.size.width, separator_height)
+        );
         let separator: id = msg_send![class!(NSView), alloc];
         let separator: id = msg_send![separator, initWithFrame: separator_frame];
         let _: () = msg_send![separator, setWantsLayer: true];
@@ -138,7 +151,7 @@ pub fn create_player_table(frame: NSRect) -> (id, id) {
         // Tabla
         let scroll_frame = NSRect::new(
             NSPoint::new(0.0, 0.0),
-            NSSize::new(frame.size.width, frame.size.height - 40.0)
+            NSSize::new(frame.size.width, frame.size.height - total_header_height)
         );
         let table_view: id = msg_send![class!(NSTableView), alloc];
         let table_view: id = msg_send![table_view, initWithFrame: scroll_frame];
