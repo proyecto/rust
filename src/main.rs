@@ -16,6 +16,8 @@ pub mod models;
 pub mod libs;
 
 use crate::libs::database;
+use crate::constants::{SQLITE_DB_PATH};
+
 
 
 fn main() {

@@ -4,6 +4,8 @@ use serde::Deserialize;
 use serde_xml_rs::from_str;
 use chrono::{Utc, Datelike};
 use crate::libs::database;
+use cocoa::base::id;
+
 
 
 use crate::models::player::Player;
@@ -102,6 +104,12 @@ impl From<XmlPlayer> for Player {
 }
 
 impl Action for ListPlayers {
+    fn render_view(&self, content_view: id) {
+        // Aquí puedes implementar la lógica para renderizar la vista
+        // utilizando el objeto `content_view`.
+        // Por ejemplo, podrías agregar un botón o una etiqueta.
+        println!("Renderizando vista en ListPlayers");
+    }
     fn run(&self) -> Result<(), Box<dyn Error>> {
         let xml = get("https://custm.es/players.xml")?.text()?;
         let wrapper: PlayersWrapper = from_str(&xml)?;

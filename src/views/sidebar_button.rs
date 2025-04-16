@@ -1,4 +1,4 @@
-use cocoa::appkit::{NSView, NSTextField, NSViewWidthSizable, NSViewMaxYMargin};
+use cocoa::appkit::{NSView, NSTextField, NSViewWidthSizable, NSViewMaxYMargin, NSApp};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
 use objc::declare::ClassDecl;
@@ -25,6 +25,7 @@ use crate::constants::{
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use crate::traits::Action;
+use crate::views::clear_scroll_views::clear_scroll_views;
 
 thread_local! {
     pub static ACTIONS: RefCell<HashMap<*mut Object, Box<dyn Action>>> = RefCell::new(HashMap::new());
@@ -120,35 +121,44 @@ pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: 
 }
 
 extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
-    let identifier: id = unsafe 
-    { 
-        msg_send![this, identifier] 
-    };
-    
-    if identifier != nil
-    {
-        let id_this = this as *const _ as *mut Object;
+    unsafe { 
+        let app = NSApp();
+        let window: id = msg_send![app, mainWindow];
+        let content_view: id = msg_send![window, contentView];
 
-        ACTIONS.with(|map| {
-            if let Some(action) = map.borrow().get(&id_this) {
-                action.run();
-            } else {
-                println!("No se encontró acción para este botón.");
-            }
-        });
-
-        unsafe {
-            let buttons = BUTTONS.lock().unwrap();
-            for &SafeButtonId(button) in buttons.iter() 
-            {
-                let is_same = button == id_this;
-                set_active(button, nil, is_same);
-            }
-        }
+        clear_scroll_views(content_view); // limpia lo que había antes
         
-    } else {
-        println!("Botón clickeado (sin identificador)");
-    }
+        let identifier: id = unsafe 
+        { 
+            msg_send![this, identifier] 
+        };
+        
+        if identifier != nil
+        {
+            let id_this = this as *const _ as *mut Object;
+
+            ACTIONS.with(|map| {
+                if let Some(action) = map.borrow().get(&id_this) {
+                    action.run();
+                    action.render_view(content_view); // pinta lo que corresponde a ese botón
+                } else {
+                    println!("No se encontró acción para este botón.");
+                }
+            });
+
+            unsafe {
+                let buttons = BUTTONS.lock().unwrap();
+                for &SafeButtonId(button) in buttons.iter() 
+                {
+                    let is_same = button == id_this;
+                    set_active(button, nil, is_same);
+                }
+            }
+            
+        } else {
+            println!("Botón clickeado (sin identificador)");
+        }
+    };
 }
 
 pub unsafe fn set_active(view: id, label: id, active: bool) {
@@ -189,3 +199,5 @@ pub unsafe fn set_active(view: id, label: id, active: bool) {
 pub unsafe fn sanitize_label(label: &str) -> String {
     label.to_lowercase().replace(" ", "_").replace("-", "_")
 }
+
+
