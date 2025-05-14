@@ -140,7 +140,7 @@ extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
             ACTIONS.with(|map| {
                 if let Some(action) = map.borrow().get(&id_this) {
                     action.run();
-                    action.render_view(content_view); // pinta lo que corresponde a ese botón
+                    action.render_view(); // pinta lo que corresponde a ese botón
                 } else {
                     println!("No se encontró acción para este botón.");
                 }

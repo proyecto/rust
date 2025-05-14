@@ -49,10 +49,3 @@ pub unsafe fn create(frame: NSRect) -> id {
 
     view
 }
-
-pub fn render(x: f64, y: f64, width: f64, height: f64) {
-    unsafe {
-        let frame = NSRect::new(NSPoint::new(x, y), NSSize::new(width, height));
-        let _ = create(frame);
-    }
-}
