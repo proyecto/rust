@@ -1,8 +1,8 @@
-use cocoa::appkit::{NSView, NSTextField, NSViewWidthSizable, NSViewMaxYMargin, NSApp};
+use cocoa::appkit::{NSViewWidthSizable, NSViewMaxYMargin, NSApp};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
 use objc::declare::ClassDecl;
-use objc::runtime::{Class, Object, Sel};
+use objc::runtime::{Object, Sel};
 use objc::{class, msg_send, sel, sel_impl};
 use std::sync::Once;
 use std::sync::Mutex;
@@ -22,7 +22,6 @@ use crate::constants::{
     BUTTON_MARGIN_TOP
 };
 
-use lazy_static::lazy_static;
 use std::collections::HashMap;
 use crate::traits::Action;
 use crate::views::clear_scroll_views::clear_scroll_views;

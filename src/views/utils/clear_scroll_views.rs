@@ -1,4 +1,4 @@
-use cocoa::base::{id, nil};
+use cocoa::base::id;
 use objc::{msg_send, sel, sel_impl};
 use std::ffi::CStr;
 

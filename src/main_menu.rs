@@ -32,7 +32,7 @@ impl MainMenu {
     }
 }
 
-unsafe fn create_menu(about_text: &str, quit_text: &str, quit_key: &str) -> (id, id) {
+unsafe fn create_menu(about_text: &str, quit_text: &str, quit_key: &str) -> (id, id) { unsafe {
     let app_menu_item: id = NSMenuItem::new(nil);
     let app_menu: id = NSMenu::new(nil);
 
@@ -54,12 +54,12 @@ unsafe fn create_menu(about_text: &str, quit_text: &str, quit_key: &str) -> (id,
     app_menu.addItem_(quit_item);
 
     (app_menu_item, app_menu)
-}
+}}
 
-unsafe fn create_menu_item(title: &str) -> id {
+unsafe fn create_menu_item(title: &str) -> id { unsafe {
     let menu_item: id = NSMenuItem::new(nil);
     let menu: id = NSMenu::new(nil);
     let _: () = msg_send![menu_item, setTitle: NSString::alloc(nil).init_str(title)];
     let _: () = msg_send![menu_item, setSubmenu: menu];
     menu_item
-}
+}}

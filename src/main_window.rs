@@ -1,7 +1,7 @@
 // src/main_window.rs
 
 use crate::constants::{
-    RIGHT_VIEW_COLOR, SIDEBAR_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT
+    SIDEBAR_WIDTH, WINDOW_HEIGHT, WINDOW_WIDTH, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT
 };
 
 use cocoa::appkit::{NSBackingStoreType, NSView, NSWindow, NSWindowStyleMask, NSViewHeightSizable, NSViewWidthSizable, NSViewMaxXMargin};
@@ -85,7 +85,7 @@ unsafe fn create_split_view(frame: NSRect) -> id {
     split_view
 }
 
-unsafe fn create_colored_view(frame: NSRect, rgb: (f32, f32, f32)) -> id {
+unsafe fn create_colored_view(frame: NSRect, rgb: (f32, f32, f32)) -> id { unsafe {
     let view: id = NSView::alloc(nil).initWithFrame_(frame);
     let _: () = msg_send![view, setWantsLayer: true];
     let layer: id = msg_send![view, layer];
@@ -101,9 +101,9 @@ unsafe fn create_colored_view(frame: NSRect, rgb: (f32, f32, f32)) -> id {
     let _: () = msg_send![layer, setBackgroundColor: cg_color];
 
     view
-}
+}}
 
-unsafe fn create_delegate_class() -> *const Class {
+unsafe fn create_delegate_class() -> *const Class { unsafe {
     static mut CLASS_PTR: *const Class = std::ptr::null();
 
     if !CLASS_PTR.is_null() {
@@ -124,4 +124,4 @@ unsafe fn create_delegate_class() -> *const Class {
 
     CLASS_PTR = decl.register();
     CLASS_PTR
-}
+}}

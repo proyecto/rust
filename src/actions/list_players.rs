@@ -2,9 +2,7 @@ use std::error::Error;
 use reqwest::blocking::get;
 use serde::Deserialize;
 use serde_xml_rs::from_str;
-use chrono::{Utc, Datelike};
 use crate::libs::database;
-use cocoa::base::id;
 
 
 

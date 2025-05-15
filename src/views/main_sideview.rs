@@ -3,16 +3,12 @@
 #[link(name = "QuartzCore", kind = "framework")]
 
 use crate::views::sidebar_button as sidebar_button;
-use cocoa::appkit::NSView;
 use cocoa::base::{id, nil};
-use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
+use cocoa::foundation::NSRect;
 use objc::{class, msg_send, sel, sel_impl};
-use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSViewMinYMargin, NSViewMaxYMargin};
+use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable};
 
 use crate::constants::{LEFT_VIEW_COLOR, get_buttons};
-use crate::actions::PrintHello;
-use crate::actions::PrintHello2;
-use crate::traits::Action;
 
 
 pub unsafe fn create(frame: NSRect) -> id {
@@ -41,7 +37,7 @@ pub unsafe fn create(frame: NSRect) -> id {
     {
         let button_id = format!("button_{}", sidebar_button::sanitize_label(label));
         let (button_id,_) = sidebar_button::create_sidebar_button(view, label, frame, index, action);
-        if(index == 1)
+        if index == 1
         {
             sidebar_button::set_active(button_id, nil, true);
         }

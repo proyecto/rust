@@ -1,8 +1,7 @@
-use cocoa::appkit::{NSView, NSViewHeightSizable, NSViewWidthSizable, NSApp, NSApplication, NSWindow};
+use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSApp, NSApplication};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSRect, NSString, NSPoint, NSSize};
 use objc::{class, msg_send, sel, sel_impl};
-use crate::views::utils::clear_scroll_views;
 use crate::actions::Updates;
 use crate::traits::Action;
 use crate::views::clear_scroll_views::clear_scroll_views;

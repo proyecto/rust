@@ -1,6 +1,5 @@
 use crate::traits::Action;
 use std::error::Error;
-use cocoa::base::id;
 
 #[derive(Debug)]
 pub struct Updates;
