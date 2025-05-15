@@ -4,7 +4,6 @@ extern crate objc;
 use cocoa::appkit::{NSApp, NSApplication, NSApplicationActivationPolicyRegular};
 use cocoa::base::nil;
 use cocoa::foundation::NSAutoreleasePool;
-use objc::{class, msg_send, sel, sel_impl};
 
 mod constants;
 mod main_menu;
@@ -18,12 +17,10 @@ pub mod libs;
 use crate::libs::database;
 use crate::constants::{SQLITE_DB_PATH};
 
-
-
 fn main() {
 
     unsafe {
-        let _: () = msg_send![class!(NSApplication), sharedApplication];
+        let _ = NSApplication::sharedApplication(nil);
         println!("🔍 Cocoa runtime loaded, tracking what happens next...");
     }
 
