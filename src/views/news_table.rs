@@ -2,15 +2,26 @@ use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSApp};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSRect, NSString, NSPoint, NSSize};
 use objc::{class, msg_send, sel, sel_impl};
+use objc::runtime::{Class, Sel};
 use crate::actions::Updates;
 use crate::traits::Action;
 use crate::views::clear_scroll_views::clear_scroll_views;
+use crate::libs::objc_shims::*;
+use objc::runtime::Object;
+use crate::libs::objc_shims::*;
 
 pub fn create_news_table_view(frame: NSRect) -> id {
     unsafe {
-        let table_view: id = msg_send![class!(NSTableView), alloc];
-        let table_view: id = msg_send![table_view, initWithFrame:frame];
-        let _: () = msg_send![table_view, setColumnAutoresizingStyle:1];
+
+        let cls = get_class("NSTableView");
+        let table_view: id = unsafe {
+            objc_msg_send_id_no_args(cls as *mut _, Sel::register("alloc"))
+        };        
+        objc_msg_send_id_no_args(cls as *mut _, Sel::register("alloc"));
+
+        let table_view: id = objc_msg_send_id_rect(table_view as *mut _, Sel::register("initWithFrame:"), frame);
+
+        objc_msg_send_void_usize(table_view as *mut _, Sel::register("setColumnAutoresizingStyle:"), 1);
 
         let columns = vec![
             ("Fecha", 120.0),
@@ -20,22 +31,33 @@ pub fn create_news_table_view(frame: NSRect) -> id {
 
         for (title, width) in columns {
             let identifier = NSString::alloc(nil).init_str(title);
-            let col: id = msg_send![class!(NSTableColumn), alloc];
-            let col: id = msg_send![col, initWithIdentifier:identifier];
-            let header: id = msg_send![col, headerCell];
+            let cls = get_class("NSTableColumn");
+            let col: id = unsafe {
+                objc_msg_send_id_no_args(cls as *mut _, Sel::register("alloc"))
+            };            
+            objc_msg_send_id_no_args(cls as *mut _, Sel::register("alloc"));
+            let col: id = objc_msg_send_id_id(col as *mut _, Sel::register("initWithIdentifier:"), identifier);
+            let header: id = objc_msg_send_id_no_args(col as *mut _, Sel::register("headerCell"));            
             let title_str = NSString::alloc(nil).init_str(title);
             let _: () = msg_send![header, setStringValue:title_str];
-            let _: () = msg_send![col, setWidth:width];
-            let _: () = msg_send![table_view, addTableColumn:col];
-        }
+            objc_msg_send_void_f64(col as *mut _, Sel::register("setWidth:"), width);
+            objc_msg_send_void_id(table_view as *mut _, Sel::register("addTableColumn:"), col);      
+        }   
 
-        let scroll_view: id = msg_send![class!(NSScrollView), alloc];
-        let scroll_view: id = msg_send![scroll_view, initWithFrame:frame];
-        let _: () = msg_send![scroll_view, setDocumentView:table_view];
-        let _: () = msg_send![scroll_view, setHasVerticalScroller:true];
-        let _: () = msg_send![scroll_view, setAutoresizingMask:
-            NSViewHeightSizable | NSViewWidthSizable];
+        let scroll_view: id = unsafe {
+            let class = get_class("NSScrollView");
+            objc_msg_send_id_no_args(class as *mut _, Sel::register("alloc"))
+        };
+        
+        let scroll_view: id = objc_msg_send_id_rect(scroll_view as *mut _, Sel::register("initWithFrame:"), frame);
 
+        objc_msg_send_void_id(scroll_view as *mut _, Sel::register("setDocumentView:"), table_view);
+        
+        objc_msg_send_void_bool(scroll_view as *mut _, Sel::register("setHasVerticalScroller:"), true);
+      
+        let mask = NSViewHeightSizable | NSViewWidthSizable;
+        objc_msg_send_void_usize(scroll_view as *mut _, Sel::register("setAutoresizingMask:"), mask as usize);
+        
         scroll_view
     }
 }
@@ -48,9 +70,8 @@ pub fn show_news_table_in_main_view() {
 
         // Obtener la ventana y su contentView
         let app = NSApp();
-        let window: id = msg_send![app, mainWindow];
-        let content_view: id = msg_send![window, contentView];
-
+        let window: id = objc_msg_send_id_no_args(app as *mut _, Sel::register("mainWindow"));
+        let content_view: id = objc_msg_send_id_no_args(window as *mut Object, Sel::register("contentView"));
         // Limpiar lo que haya en la parte derecha
         println!("🔍 Eliminando subviews...");
         clear_scroll_views(content_view);
@@ -58,6 +79,7 @@ pub fn show_news_table_in_main_view() {
         // Crear y añadir la nueva vista de noticias
         let frame = NSRect::new(NSPoint::new(210.0, 10.0), NSSize::new(700.0, 600.0));
         let news_table = create_news_table_view(frame);
-        let _: () = msg_send![content_view, addSubview:news_table];
+        objc_msg_send_void_id(content_view, Sel::register("addSubview:"), news_table);
+        
     }
 }
