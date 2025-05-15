@@ -35,7 +35,7 @@ fn main() {
         let app = NSApp();
 
         // Crea una conexión a la base de datos SQLite.
-        database::init(SQLITE_DB_PATH);
+        let _ = database::init(SQLITE_DB_PATH);
 
         // Establece la política de activación de la aplicación.
         app.setActivationPolicy_(NSApplicationActivationPolicyRegular);

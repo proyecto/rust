@@ -95,7 +95,9 @@ pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: 
     let _: () = msg_send![label, setTextColor: button_text_color];
     
     let font_size: f64 = LABEL_FONT_SIZE;
-    let font_name = NSString::alloc(nil).init_str("Helvetica"); // o "Arial", "Menlo", etc.
+    let font_name = unsafe {
+        NSString::alloc(nil).init_str("Helvetica")
+    };
     let font: id = msg_send![class!(NSFont), fontWithName:font_name size:font_size];
     let _: () = msg_send![label, setFont: font];
 
@@ -127,10 +129,7 @@ extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
 
         clear_scroll_views(content_view); // limpia lo que había antes
         
-        let identifier: id = unsafe 
-        { 
-            msg_send![this, identifier] 
-        };
+        let identifier: id = msg_send![this, identifier];
         
         if identifier != nil
         {
@@ -138,20 +137,19 @@ extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
 
             ACTIONS.with(|map| {
                 if let Some(action) = map.borrow().get(&id_this) {
-                    action.run();
+                    let _ = action.run();
                     action.render_view(); // pinta lo que corresponde a ese botón
                 } else {
                     println!("No se encontró acción para este botón.");
                 }
             });
 
-            unsafe {
-                let buttons = BUTTONS.lock().unwrap();
-                for &SafeButtonId(button) in buttons.iter() 
-                {
-                    let is_same = button == id_this;
-                    set_active(button, nil, is_same);
-                }
+
+            let buttons = BUTTONS.lock().unwrap();
+            for &SafeButtonId(button) in buttons.iter() 
+            {
+                let is_same = button == id_this;
+                set_active(button, is_same);
             }
             
         } else {
@@ -160,7 +158,7 @@ extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
     };
 }
 
-pub unsafe fn set_active(view: id, label: id, active: bool) {
+pub unsafe fn set_active(view: id, active: bool) {
     let layer: id = msg_send![view, layer];
 
     if active {

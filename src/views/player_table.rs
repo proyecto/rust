@@ -102,8 +102,14 @@ pub unsafe fn attach_data_source(table_view: id, players: Vec<Player>) {
 
     let boxed_vec = Box::new(players);
     let raw_ptr = Box::into_raw(boxed_vec);
-    STORED_PLAYER_VEC_PTR = Some(raw_ptr);
-    (*data_source).set_ivar("players", raw_ptr as *mut c_void);
+    
+    unsafe {
+        STORED_PLAYER_VEC_PTR = Some(raw_ptr);
+    }
+    
+    unsafe {
+        (*data_source).set_ivar("players", raw_ptr as *mut c_void);
+    }
 
     let _: () = msg_send![table_view, setDataSource: data_source];
     let _: () = msg_send![table_view, setDelegate: data_source];

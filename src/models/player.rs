@@ -105,7 +105,7 @@ impl Player {
         Ok(())
     }
 
-    pub fn toStrign(&self) -> String {
+    pub fn to_string(&self) -> String {
         format!(
             "ID: {}, Name: {}, Age: {}, TSI: {}, Form: {}, Stamina: {}, Keeper: {}, Playmaker: {}, Scorer: {}, Passing: {}, Winger: {}, Defender: {}, Set Pieces: {}, Experience: {}, Loyalty: {}, Mother Club Bonus: {}, Injury Level: {}, Is Injured: {}, Specialty: {:?}, Salary: {}, Is Abroad: {}, Country ID: {}, Country Name: {}",
             self.player_id, self.name, self.age, self.tsi, self.form, self.stamina, self.keeper, self.playmaker, self.scorer, self.passing, self.winger, self.defender, self.set_pieces,

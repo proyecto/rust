@@ -14,7 +14,6 @@ use crate::views::main_sideview;
 use crate::views::main_view;
 
 pub struct MainWindow {
-    window: id,
 }
 
 impl MainWindow {
@@ -53,7 +52,7 @@ impl MainWindow {
 
             window.makeKeyAndOrderFront_(nil);
 
-            MainWindow { window }
+            MainWindow { }
         }
     }
 }
@@ -84,24 +83,6 @@ unsafe fn create_split_view(frame: NSRect) -> id {
 
     split_view
 }
-
-unsafe fn create_colored_view(frame: NSRect, rgb: (f32, f32, f32)) -> id { unsafe {
-    let view: id = NSView::alloc(nil).initWithFrame_(frame);
-    let _: () = msg_send![view, setWantsLayer: true];
-    let layer: id = msg_send![view, layer];
-
-    let color: id = msg_send![
-        class!(NSColor),
-        colorWithRed: rgb.0
-        green: rgb.1
-        blue: rgb.2
-        alpha: 1.0
-    ];
-    let cg_color: id = msg_send![color, CGColor];
-    let _: () = msg_send![layer, setBackgroundColor: cg_color];
-
-    view
-}}
 
 unsafe fn create_delegate_class() -> *const Class { unsafe {
     static mut CLASS_PTR: *const Class = std::ptr::null();

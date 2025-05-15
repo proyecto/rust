@@ -12,7 +12,6 @@ pub const SIDEBAR_WIDTH: f64 = 200.0;
 // Dimensiones minimas de la ventana principal y barra lateral al inicio (en píxeles)
 pub const MIN_WINDOW_WIDTH: f64 = 512.0;
 pub const MIN_WINDOW_HEIGHT: f64 = 360.0;
-pub const MIN_SIDEBAR_WIDTH: f64 = 200.0;
 
 // Colores
 pub const RIGHT_VIEW_COLOR: (f64, f64, f64) = (0.980, 0.980, 0.983); // Gris medio
@@ -25,7 +24,6 @@ pub const BUTTON_TEXT_COLOR: (f64, f64, f64) = (0.25, 0.25, 0.25); // Gris oscur
 pub const BUTTON_WIDTH_MARGIN: f64 = 20.0;
 pub const BUTTON_HEIGHT: f64 = 24.0;
 pub const BUTTON_SPACING: f64 = 0.0;
-pub const BUTTON_PADDING_TOP: f64 = 10.0;
 pub const BUTTON_MARGIN_LEFT: f64 = 10.0;
 pub const BUTTON_MARGIN_TOP: f64 = 0.0;
 

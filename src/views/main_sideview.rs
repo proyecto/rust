@@ -39,7 +39,7 @@ pub unsafe fn create(frame: NSRect) -> id {
         let (button_id,_) = sidebar_button::create_sidebar_button(view, label, frame, index, action);
         if index == 1
         {
-            sidebar_button::set_active(button_id, nil, true);
+            sidebar_button::set_active(button_id, true);
         }
     }
 
