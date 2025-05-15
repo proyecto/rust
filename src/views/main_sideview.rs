@@ -1,9 +1,10 @@
 // src/main_sideview.rs
 
 #[link(name = "QuartzCore", kind = "framework")]
+unsafe extern "C" {}
 
 use crate::views::sidebar_button as sidebar_button;
-use cocoa::base::{id, nil};
+use cocoa::base::{id};
 use cocoa::foundation::NSRect;
 use objc::{class, msg_send, sel, sel_impl};
 use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable};
@@ -32,14 +33,13 @@ pub unsafe fn create(frame: NSRect) -> id {
     let _: () = msg_send![layer, setBackgroundColor: cg_color];
     let _: () = msg_send![view, setLayer: layer];
     
-
     for (index, label, action) in get_buttons() 
     {
-        let button_id = format!("button_{}", sidebar_button::sanitize_label(label));
-        let (button_id,_) = sidebar_button::create_sidebar_button(view, label, frame, index, action);
+        //let button_id = format!("button_{}", unsafe{sidebar_button::sanitize_label(label)});
+        let (button_id,_) = unsafe {sidebar_button::create_sidebar_button(view, label, index, action)};
         if index == 1
         {
-            sidebar_button::set_active(button_id, true);
+            unsafe{sidebar_button::set_active(button_id, true)};
         }
     }
 

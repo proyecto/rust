@@ -70,14 +70,14 @@ unsafe fn create_split_view(frame: NSRect) -> id {
         NSSize::new(WINDOW_WIDTH - SIDEBAR_WIDTH, WINDOW_HEIGHT),
     );
 
-    let left_view = main_sideview::create(left_frame);
+    let left_view = unsafe{main_sideview::create(left_frame)};
     let _: () = msg_send![left_view, setAutoresizingMask: NSViewHeightSizable | NSViewMaxXMargin];
     let _: () = msg_send![left_view, setFrameSize: NSSize::new(SIDEBAR_WIDTH, frame.size.height)];
-    split_view.addSubview_(left_view);
+    unsafe{split_view.addSubview_(left_view)};
 
     let right_view = main_view::render_main_view_as_nsview(right_frame);
     let _: () = msg_send![right_view, setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
-    split_view.addSubview_(right_view);
+    unsafe{split_view.addSubview_(right_view)};
 
     let _: () = msg_send![split_view, adjustSubviews];
 

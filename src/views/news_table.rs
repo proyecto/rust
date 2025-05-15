@@ -1,4 +1,4 @@
-use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSApp, NSApplication};
+use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSApp};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSRect, NSString, NSPoint, NSSize};
 use objc::{class, msg_send, sel, sel_impl};

@@ -48,7 +48,7 @@ pub fn define_sidebar_button_class() {
     });
 }
 
-pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: i16, action: Box<dyn crate::traits::Action>) -> (id, id) {
+pub unsafe fn create_sidebar_button(view: id, text: &str, order: i16, action: Box<dyn crate::traits::Action>) -> (id, id) {
     define_sidebar_button_class();
 
     let view_frame: NSRect = msg_send![view, frame];
@@ -63,11 +63,10 @@ pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: 
     let button: id = msg_send![button, initWithFrame: button_frame];
 
     // Establecer el identificador visible desde mouse_down
-    let id_str: id = NSString::alloc(nil).init_str(text);
+    let id_str: id = unsafe{NSString::alloc(nil).init_str(text)};
     let _: () = msg_send![button, setIdentifier: id_str];
     let _: () = msg_send![button, setWantsLayer: true];
 
-    let layer: id = msg_send![button, layer];
     // Configuración adicional de la capa si es necesario
 
     let label_frame = NSRect::new(
@@ -77,7 +76,7 @@ pub unsafe fn create_sidebar_button(view: id, text: &str, frame: NSRect, order: 
 
     let label: id = msg_send![class!(NSTextField), alloc];
     let label: id = msg_send![label, initWithFrame: label_frame];
-    let title = NSString::alloc(nil).init_str(text);
+    let title = unsafe{NSString::alloc(nil).init_str(text)};
     let _: () = msg_send![label, setStringValue: title];
     let _: () = msg_send![label, setBordered: false];
     let _: () = msg_send![label, setEditable: false];

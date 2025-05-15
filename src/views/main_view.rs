@@ -1,7 +1,6 @@
 use crate::constants::{WINDOW_WIDTH, WINDOW_HEIGHT, SIDEBAR_WIDTH, RIGHT_VIEW_COLOR};
 use cocoa::base::{nil, id};
 use objc::{class, msg_send, sel, sel_impl};
-use crate::views::main_sideview as side_view;
 use cocoa::appkit::NSView;
 use cocoa::foundation::{NSRect, NSPoint, NSSize};
 use objc::runtime::Object;
@@ -17,11 +16,7 @@ pub fn render_main_view_as_nsview(frame: NSRect) -> *mut Object {
         let _: () = msg_send![view, setWantsLayer: true];
         let _: () = msg_send![view, setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
 
-        // 1. Crear y añadir la barra lateral
-        let sidebar_frame = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(SIDEBAR_WIDTH, WINDOW_HEIGHT));
-        let sidebar = side_view::create(sidebar_frame);
-
-        // 2. Crear y añadir el panel de contenido a la derecha
+        // 1. Crear y añadir el panel de contenido a la derecha
         let content_width = WINDOW_WIDTH - SIDEBAR_WIDTH;
         let content_frame = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(content_width, WINDOW_HEIGHT));
         let content_panel: id = NSView::alloc(nil).initWithFrame_(content_frame);
