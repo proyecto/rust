@@ -6,6 +6,7 @@ use objc::*;
 use objc::declare::ClassDecl;
 use crate::models::player::Player;
 use std::os::raw::c_void;
+use crate::libs::objc_shims::*;
 
 static mut PLAYER_DATA_SOURCE_CLASS: *const Class = std::ptr::null();
 static mut STORED_PLAYER_VEC_PTR: Option<*mut Vec<Player>> = None;
@@ -17,8 +18,8 @@ pub fn register_player_data_source_class() -> *const Class {
             return PLAYER_DATA_SOURCE_CLASS;
         }
 
-        let superclass = class!(NSObject);
-        let mut decl = ClassDecl::new("PlayerDataSource", superclass).unwrap();
+        let superclass = get_class("NSObject");
+        let mut decl = ClassDecl::new("PlayerDataSource",  &*superclass).unwrap();
 
         decl.add_ivar::<*mut c_void>("players");
 

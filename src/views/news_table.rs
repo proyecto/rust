@@ -1,12 +1,10 @@
 use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSApp};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSRect, NSString, NSPoint, NSSize};
-use objc::{class, msg_send, sel, sel_impl};
-use objc::runtime::{Class, Sel};
+use objc::runtime::{Sel};
 use crate::actions::Updates;
 use crate::traits::Action;
 use crate::views::clear_scroll_views::clear_scroll_views;
-use crate::libs::objc_shims::*;
 use objc::runtime::Object;
 use crate::libs::objc_shims::*;
 
@@ -14,9 +12,7 @@ pub fn create_news_table_view(frame: NSRect) -> id {
     unsafe {
 
         let cls = get_class("NSTableView");
-        let table_view: id = unsafe {
-            objc_msg_send_id_no_args(cls as *mut _, Sel::register("alloc"))
-        };        
+        let table_view: id =  objc_msg_send_id_no_args(cls as *mut _, Sel::register("alloc"));        
         objc_msg_send_id_no_args(cls as *mut _, Sel::register("alloc"));
 
         let table_view: id = objc_msg_send_id_rect(table_view as *mut _, Sel::register("initWithFrame:"), frame);
@@ -32,22 +28,18 @@ pub fn create_news_table_view(frame: NSRect) -> id {
         for (title, width) in columns {
             let identifier = NSString::alloc(nil).init_str(title);
             let cls = get_class("NSTableColumn");
-            let col: id = unsafe {
-                objc_msg_send_id_no_args(cls as *mut _, Sel::register("alloc"))
-            };            
+            let col: id = objc_msg_send_id_no_args(cls as *mut _, Sel::register("alloc"));            
             objc_msg_send_id_no_args(cls as *mut _, Sel::register("alloc"));
             let col: id = objc_msg_send_id_id(col as *mut _, Sel::register("initWithIdentifier:"), identifier);
             let header: id = objc_msg_send_id_no_args(col as *mut _, Sel::register("headerCell"));            
             let title_str = NSString::alloc(nil).init_str(title);
-            let _: () = msg_send![header, setStringValue:title_str];
+            objc_msg_send_void_id(header as *mut _, Sel::register("setStringValue:"), title_str);
             objc_msg_send_void_f64(col as *mut _, Sel::register("setWidth:"), width);
             objc_msg_send_void_id(table_view as *mut _, Sel::register("addTableColumn:"), col);      
         }   
 
-        let scroll_view: id = unsafe {
-            let class = get_class("NSScrollView");
-            objc_msg_send_id_no_args(class as *mut _, Sel::register("alloc"))
-        };
+        let class = get_class("NSScrollView");
+        let scroll_view: id = objc_msg_send_id_no_args(class as *mut _, Sel::register("alloc"));
         
         let scroll_view: id = objc_msg_send_id_rect(scroll_view as *mut _, Sel::register("initWithFrame:"), frame);
 
