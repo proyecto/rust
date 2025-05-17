@@ -17,7 +17,20 @@ pub mod libs;
 use crate::libs::database;
 use crate::constants::{SQLITE_DB_PATH};
 
+
+
 fn main() {
+
+    unsafe extern "C" {
+        fn NSApplicationLoad() -> bool;
+    }
+
+    unsafe {
+        let loaded = NSApplicationLoad();
+        println!("☕ NSApplicationLoad() → {loaded}");
+    }
+
+
 
     unsafe {
         let _ = NSApplication::sharedApplication(nil);

@@ -6,107 +6,87 @@
 
 use objc::runtime::{Object, Sel};
 use cocoa::base::id;
-use std::ffi::c_char;
+use std::os::raw::{c_char, c_int};
 use cocoa::foundation::NSRect;
 use objc::runtime::Class;
-
-
-#[link(name = "objc")]
-unsafe extern "C" {
-    #[link_name = "objc_msgSend"]
-    pub static OBJC_MSG_SEND: usize;
-}
-
-#[inline(always)]
-pub unsafe fn objc_msg_send_id(obj: *mut Object, sel: Sel) -> id { unsafe {
-    let f: unsafe extern "C" fn(*mut Object, Sel) -> id =
-        std::mem::transmute(OBJC_MSG_SEND);
-    f(obj, sel)
-}}
-
-#[inline(always)]
-pub unsafe fn objc_msg_send_usize(obj: *mut Object, sel: Sel) -> usize { unsafe {
-    let f: unsafe extern "C" fn(*mut Object, Sel) -> usize =
-        std::mem::transmute(OBJC_MSG_SEND);
-    f(obj, sel)
-}}
-
-#[inline(always)]
-pub unsafe fn objc_msg_send_cchar(obj: *mut Object, sel: Sel) -> *const c_char { unsafe {
-    let f: unsafe extern "C" fn(*mut Object, Sel) -> *const c_char =
-        std::mem::transmute(OBJC_MSG_SEND);
-    f(obj, sel)
-}}
-
-#[inline(always)]
-pub unsafe fn objc_msg_send_void(obj: *mut Object, sel: Sel) { unsafe {
-    let f: unsafe extern "C" fn(*mut Object, Sel) =
-        std::mem::transmute(OBJC_MSG_SEND);
-    f(obj, sel)
-}}
-
-#[inline(always)]
-pub unsafe fn objc_msg_send_bool(obj: *mut Object, sel: Sel) -> bool { unsafe {
-    let f: unsafe extern "C" fn(*mut Object, Sel) -> bool =
-        std::mem::transmute(OBJC_MSG_SEND);
-    f(obj, sel)
-}}
+use std::ptr;
 
 #[link(name = "objc")]
 unsafe extern "C" {
+    // Basic message send variants
     #[link_name = "objc_msgSend"]
-    pub fn objc_msg_send_bool_sel(obj: *mut Object, sel: Sel, arg: Sel) -> bool;
+    fn objc_msgSend_raw(receiver: *mut Object, sel: Sel, ...) -> *mut Object;
+    
+    // Special variants for floating point returns
+    #[link_name = "objc_msgSend_fpret"]
+    fn objc_msgSend_fpret_raw(receiver: *mut Object, sel: Sel, ...) -> f64;
+    
+    // Struct return variant
+    #[link_name = "objc_msgSend_stret"]
+    fn objc_msgSend_stret_raw(receiver: *mut Object, sel: Sel, ...);
 }
 
-#[inline(always)]
-pub unsafe fn objc_msg_send_void_id(obj: *mut Object, sel: Sel, arg: id) {
-    let f: unsafe extern "C" fn(*mut Object, Sel, id) =
-        unsafe { std::mem::transmute(OBJC_MSG_SEND) };
-    unsafe { f(obj, sel, arg) }
+/// Safe wrapper for objc_msgSend with different signatures
+pub unsafe fn msg_send_id(obj: *mut Object, sel: Sel) -> id {
+    unsafe { objc_msgSend_raw(obj, sel) as id }
 }
 
-#[inline(always)]
-pub unsafe fn objc_msg_send_id_no_args(obj: *mut Object, sel: Sel) -> id {
-    let f: unsafe extern "C" fn(*mut Object, Sel) -> id =
-        unsafe { std::mem::transmute(OBJC_MSG_SEND) };
-    unsafe { f(obj, sel) }
+pub unsafe fn msg_send_usize(obj: *mut Object, sel: Sel) -> usize {
+    unsafe { objc_msgSend_raw(obj, sel) as usize }
 }
 
-#[inline(always)]
-pub unsafe fn objc_msg_send_void_usize(obj: *mut Object, sel: Sel, arg: usize) {
-    let f: unsafe extern "C" fn(*mut Object, Sel, usize) =
-        unsafe { std::mem::transmute(OBJC_MSG_SEND) };
-    unsafe { f(obj, sel, arg) }
+pub unsafe fn msg_send_c_char(obj: *mut Object, sel: Sel) -> *const c_char {
+    unsafe { objc_msgSend_raw(obj, sel) as *const c_char }
 }
 
-#[inline(always)]
-pub unsafe fn objc_msg_send_void_bool(obj: *mut Object, sel: Sel, arg: bool) {
-    let f: unsafe extern "C" fn(*mut Object, Sel, bool) =
-        unsafe { std::mem::transmute(OBJC_MSG_SEND) };
-    unsafe { f(obj, sel, arg) }
+pub unsafe fn msg_send_void(obj: *mut Object, sel: Sel) {
+    unsafe { let _ = objc_msgSend_raw(obj, sel); }
 }
 
-#[inline(always)]
-pub unsafe fn objc_msg_send_id_rect(obj: *mut Object, sel: Sel, arg: NSRect) -> id {
-    let f: unsafe extern "C" fn(*mut Object, Sel, NSRect) -> id =
-        unsafe { std::mem::transmute(OBJC_MSG_SEND) };
-    unsafe { f(obj, sel, arg) }
+pub unsafe fn msg_send_bool(obj: *mut Object, sel: Sel) -> bool {
+    unsafe { !objc_msgSend_raw(obj, sel).is_null() }
+}
+
+pub unsafe fn msg_send_bool_sel(obj: *mut Object, sel: Sel, arg: Sel) -> bool {
+    unsafe { !objc_msgSend_raw(obj, sel, arg).is_null() }
+}
+
+pub unsafe fn msg_send_void_id(obj: *mut Object, sel: Sel, arg: id) {
+    unsafe { let _ = objc_msgSend_raw(obj, sel, arg); }
+}
+
+pub unsafe fn msg_send_void_usize(obj: *mut Object, sel: Sel, arg: usize) {
+    unsafe { let _ = objc_msgSend_raw(obj, sel, arg); }
+}
+
+pub unsafe fn msg_send_void_bool(obj: *mut Object, sel: Sel, arg: bool) {
+    unsafe { let _ = objc_msgSend_raw(obj, sel, arg as c_int); }
+}
+
+pub unsafe fn msg_send_id_rect(obj: *mut Object, sel: Sel, arg: NSRect) -> id {
+    unsafe { objc_msgSend_raw(obj, sel, arg) as id }
+}
+
+pub unsafe fn msg_send_void_f64(obj: *mut Object, sel: Sel, arg: f64) {
+    unsafe { let _ = objc_msgSend_raw(obj, sel, arg); }
+}
+
+pub unsafe fn msg_send_id_id(obj: *mut Object, sel: Sel, arg: id) -> id {
+    unsafe { objc_msgSend_raw(obj, sel, arg) as id }
+}
+
+pub unsafe fn msg_send_void_u64(obj: *mut Object, sel: Sel, arg: u64) {
+    unsafe { let _ = objc_msgSend_raw(obj, sel, arg); }
+}
+
+pub unsafe fn msg_send_id_id_f64(obj: *mut Object, sel: Sel, arg1: id, arg2: f64) -> id {
+    unsafe { objc_msgSend_raw(obj, sel, arg1, arg2) as id }
+}
+
+pub unsafe fn msg_send_id_f64_f64(obj: *mut Object, sel: Sel, arg1: f64, arg2: f64) -> id {
+    unsafe { objc_msgSend_raw(obj, sel, arg1, arg2) as id }
 }
 
 pub fn get_class(name: &str) -> *const Class {
-    objc::runtime::Class::get(name).expect("Clase no encontrada") 
-}
-
-#[inline(always)]
-pub unsafe fn objc_msg_send_void_f64(obj: *mut Object, sel: Sel, arg: f64) {
-    let f: unsafe extern "C" fn(*mut Object, Sel, f64) =
-        unsafe { std::mem::transmute(OBJC_MSG_SEND) };
-    unsafe { f(obj, sel, arg) }
-}
-
-#[inline(always)]
-pub unsafe fn objc_msg_send_id_id(obj: *mut Object, sel: Sel, arg: id) -> id {
-    let f: unsafe extern "C" fn(*mut Object, Sel, id) -> id =
-        unsafe { std::mem::transmute(OBJC_MSG_SEND) };
-    unsafe { f(obj, sel, arg) }
+    Class::get(name).expect("Clase no encontrada")
 }

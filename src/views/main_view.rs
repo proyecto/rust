@@ -5,7 +5,7 @@ use cocoa::appkit::NSView;
 use cocoa::foundation::{NSRect, NSPoint, NSSize};
 use objc::runtime::Object;
 use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable};
-use crate::views::player_table::{create_player_table, attach_data_source};
+use crate::views::player_table::{CreatePlayerTable, attach_data_source};
 use crate::models::player::Player;
 use crate::libs::database;
 
@@ -41,7 +41,7 @@ pub fn render_main_view_as_nsview(frame: NSRect) -> *mut Object {
 
         println!("🧱 Creando tabla...");
         let table_frame = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(content_width, WINDOW_HEIGHT));
-        let (scroll_view, table_view) = create_player_table(table_frame);
+        let (scroll_view, table_view) = CreatePlayerTable(table_frame);
 
         println!("🔗 Conectando data source...");
         attach_data_source(table_view, players);
