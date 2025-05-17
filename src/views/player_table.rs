@@ -1,4 +1,4 @@
-use cocoa::base::{nil, id, YES};
+use cocoa::base::{nil, id};
 use cocoa::foundation::{NSRect, NSPoint, NSSize, NSString};
 use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSViewMinYMargin};
 use objc::runtime::{Class, Object, Sel};
@@ -7,14 +7,13 @@ use objc::declare::ClassDecl;
 use crate::models::player::Player;
 use std::os::raw::c_void;
 use crate::libs::objc_shims::*;
-use std::convert::TryInto;
 use std::ffi::CStr;
 
 static mut PLAYER_DATA_SOURCE_CLASS: *const Class = std::ptr::null();
 static mut STORED_PLAYER_VEC_PTR: Option<*mut Vec<Player>> = None;
 static mut SELECTED_ROW_INDEX: isize = -1;
 
-pub fn RegisterPlayerDataSourceClass() -> *const Class {
+pub fn register_player_data_source_class() -> *const Class {
     unsafe {
         if !PLAYER_DATA_SOURCE_CLASS.is_null() {
             return PLAYER_DATA_SOURCE_CLASS;
@@ -113,7 +112,7 @@ extern "C" fn row_height(_this: &Object, _: Sel, _table: id, row: isize) -> f64 
 }
 
 pub unsafe fn attach_data_source(table_view: id, players: Vec<Player>) {
-    let class = RegisterPlayerDataSourceClass();
+    let class = register_player_data_source_class();
 
     let data_source: id = msg_send![class, alloc];
     let data_source: id = msg_send![data_source, init];
@@ -134,13 +133,12 @@ pub unsafe fn attach_data_source(table_view: id, players: Vec<Player>) {
     let _: () = msg_send![table_view, reloadData];
 }
 
-unsafe fn CreateTitleTable(frame: NSRect) -> id {
+unsafe fn create_title_table(frame: NSRect) -> id { unsafe {
     println!("📌 Buscando clase NSTextField...");
     let cls = get_class("NSTextField");
 
-    if let Some(cls) = Class::get("NSTextField") {
+    if let Some(_cls) = Class::get("NSTextField") {
         println!("✅ NSTextField está registrada");
-        let cls_ptr = cls as *const Class;
     } else {
         println!("❌ NSTextField NO está registrada");
     }
@@ -150,18 +148,16 @@ unsafe fn CreateTitleTable(frame: NSRect) -> id {
         std::process::exit(1);
     }
 
-    let instance: id = unsafe {
+    let instance: id = {
         let alloc: id = msg_send![cls, alloc];
         let obj: id = msg_send![alloc, init];
         obj
     };
 
     // ⚠️ get_class devuelve *const Class, pero necesitamos *mut Object para msg_send
-    let name_ptr: *const std::os::raw::c_char = unsafe {
-         msg_send![instance, className]
-    };
+    let name_ptr: *const std::os::raw::c_char =msg_send![instance, className];
 
-    let class_name = unsafe { CStr::from_ptr(name_ptr).to_string_lossy() };
+    let class_name = CStr::from_ptr(name_ptr).to_string_lossy();
     println!("📛 Instancia creada, clase: {}", class_name);
 
     if class_name == "NSTextField" {
@@ -205,9 +201,10 @@ unsafe fn CreateTitleTable(frame: NSRect) -> id {
     msg_send_void_u64(label as *mut _, Sel::register("setAutoresizingMask:"), NSViewMinYMargin | NSViewWidthSizable);
 
     label
-}
+}}
 
-unsafe fn CreateSeparator(frame: NSRect) -> id {
+unsafe fn create_separator(frame: NSRect) -> id 
+{ unsafe {
     // Crear NSView con initWithFrame
     let cls = get_class("NSView");
     let alloc = msg_send_id(cls as *mut _, Sel::register("alloc"));
@@ -235,86 +232,93 @@ unsafe fn CreateSeparator(frame: NSRect) -> id {
     );
 
     separator
-}
+}}
 
-pub unsafe fn CreateTable(scroll_frame: NSRect) -> id {
-    let cls = get_class("NSTableView");
-    let alloc = msg_send_id(cls as *mut Object, Sel::register("alloc"));
-    let table_view = msg_send_id_rect(alloc as *mut Object, Sel::register("initWithFrame:"), scroll_frame);
+pub unsafe fn create_table(scroll_frame: NSRect) -> id 
+{
+    unsafe
+    {
+        let cls = get_class("NSTableView");
+        let alloc = msg_send_id(cls as *mut Object, Sel::register("alloc"));
+        let table_view = msg_send_id_rect(alloc as *mut Object, Sel::register("initWithFrame:"), scroll_frame);
 
-    // Autoresizing
-    msg_send_void_u64(
-        table_view as *mut Object,
-        Sel::register("setAutoresizingMask:"),
-        NSViewHeightSizable | NSViewWidthSizable,
-    );
+         // Autoresizing
+        msg_send_void_u64(
+            table_view as *mut Object,
+            Sel::register("setAutoresizingMask:"),
+            NSViewHeightSizable | NSViewWidthSizable,
+        );
+    
+        // Columnas
+        let columns = vec![
+            ("Nombre", "col_nombre"),
+            ("Edad", "col_edad"),
+            ("Posición", "col_posicion"),
+            ("TSI", "col_tsi"),
+            ("Habilidad", "col_habilidad"),
+            ("Evolución", "col_evolucion"),
+        ];
 
-    // Columnas
-    let columns = vec![
-        ("Nombre", "col_nombre"),
-        ("Edad", "col_edad"),
-        ("Posición", "col_posicion"),
-        ("TSI", "col_tsi"),
-        ("Habilidad", "col_habilidad"),
-        ("Evolución", "col_evolucion"),
-    ];
+        let column_cls = get_class("NSTableColumn");
 
-    let column_cls = get_class("NSTableColumn");
-
-    for (title, identifier) in columns {
-        let identifier_str = NSString::alloc(nil).init_str(identifier);
-
-        let alloc = msg_send_id(column_cls as *mut Object, Sel::register("alloc"));
-        let column = msg_send_id_id(alloc as *mut Object, Sel::register("initWithIdentifier:"), identifier_str);
-
-        let header_cell = msg_send_id(column as *mut Object, Sel::register("headerCell"));
-        let title_str = NSString::alloc(nil).init_str(title);
-        msg_send_void_id(header_cell as *mut Object, Sel::register("setStringValue:"), title_str);
-
-        msg_send_void_f64(column as *mut Object, Sel::register("setWidth:"), 100.0);
-        msg_send_void_id(table_view as *mut Object, Sel::register("addTableColumn:"), column);
+        for (title, identifier) in columns 
+        {
+            let identifier_str = NSString::alloc(nil).init_str(identifier);
+            let alloc = msg_send_id(column_cls as *mut Object, Sel::register("alloc"));
+            let column = msg_send_id_id(alloc as *mut Object, Sel::register("initWithIdentifier:"), identifier_str);
+            let header_cell = msg_send_id(column as *mut Object, Sel::register("headerCell"));
+            let title_str = NSString::alloc(nil).init_str(title);
+            msg_send_void_id(header_cell as *mut Object, Sel::register("setStringValue:"), title_str);
+            msg_send_void_f64(column as *mut Object, Sel::register("setWidth:"), 100.0);
+            msg_send_void_id(table_view as *mut Object, Sel::register("addTableColumn:"), column);   
+        }
+        // Apariencia
+        msg_send_void_bool(table_view as *mut Object, Sel::register("setUsesAlternatingRowBackgroundColors:"), true);
+        msg_send_void_u64(table_view as *mut Object, Sel::register("setGridStyleMask:"), 0);
+        msg_send_void_f64(table_view as *mut Object, Sel::register("setRowHeight:"), 24.0);
+        msg_send_void_u64(table_view as *mut Object, Sel::register("setFocusRingType:"), 1); // NSFocusRingTypeNone
+    
+        table_view
     }
-
-    // Apariencia
-    msg_send_void_bool(table_view as *mut Object, Sel::register("setUsesAlternatingRowBackgroundColors:"), true);
-    msg_send_void_u64(table_view as *mut Object, Sel::register("setGridStyleMask:"), 0);
-    msg_send_void_f64(table_view as *mut Object, Sel::register("setRowHeight:"), 24.0);
-    msg_send_void_u64(table_view as *mut Object, Sel::register("setFocusRingType:"), 1); // NSFocusRingTypeNone
-
-    table_view
 }
 
-pub unsafe fn CreateScrollView(frame: NSRect, document_view: id) -> id {
-    let cls = get_class("NSScrollView");
-    let alloc = msg_send_id(cls as *mut Object, Sel::register("alloc"));
-    let scroll_view = msg_send_id_rect(alloc as *mut Object, Sel::register("initWithFrame:"), frame);
+pub unsafe fn create_scroll_view(frame: NSRect, document_view: id) -> id 
+{
+    unsafe
+    {
+        let cls = get_class("NSScrollView");
+        let alloc = msg_send_id(cls as *mut Object, Sel::register("alloc"));
+        let scroll_view = msg_send_id_rect(alloc as *mut Object, Sel::register("initWithFrame:"), frame);
 
-    msg_send_void_id(scroll_view as *mut Object, Sel::register("setDocumentView:"), document_view);
-    msg_send_void_bool(scroll_view as *mut Object, Sel::register("setHasVerticalScroller:"), true);
-    msg_send_void_u64(
-        scroll_view as *mut Object,
-        Sel::register("setAutoresizingMask:"),
-        NSViewHeightSizable | NSViewWidthSizable,
-    );
-
-    scroll_view
+        msg_send_void_id(scroll_view as *mut Object, Sel::register("setDocumentView:"), document_view);
+        msg_send_void_bool(scroll_view as *mut Object, Sel::register("setHasVerticalScroller:"), true);
+        msg_send_void_u64(
+            scroll_view as *mut Object,
+            Sel::register("setAutoresizingMask:"),
+            NSViewHeightSizable | NSViewWidthSizable,
+        );
+        scroll_view
+    }
 }
 
-unsafe fn CreateContainer(frame: NSRect, title: id, separator: id, scroll_view: id) -> id {
+unsafe fn create_container(frame: NSRect, title: id, separator: id, scroll_view: id) -> id {
     let cls = get_class("NSView");
     let alloc = unsafe { msg_send_id(cls as *mut _, Sel::register("alloc")) };
     let container = unsafe { msg_send_id_rect(alloc as *mut _, Sel::register("initWithFrame:"), frame) };
 
-    msg_send_void_u64(container as *mut _, Sel::register("setAutoresizingMask:"), NSViewHeightSizable | NSViewWidthSizable);
-    msg_send_void_id(container as *mut _, Sel::register("addSubview:"), title);
-    msg_send_void_id(container as *mut _, Sel::register("addSubview:"), separator);
-    msg_send_void_id(container as *mut _, Sel::register("addSubview:"), scroll_view);
-
+    unsafe
+    {
+        msg_send_void_u64(container as *mut _, Sel::register("setAutoresizingMask:"), NSViewHeightSizable | NSViewWidthSizable);
+        msg_send_void_id(container as *mut _, Sel::register("addSubview:"), title);
+        msg_send_void_id(container as *mut _, Sel::register("addSubview:"), separator);
+        msg_send_void_id(container as *mut _, Sel::register("addSubview:"), scroll_view);
+    }
     container
 }
 
-pub fn CreatePlayerTable(frame: NSRect) -> (id, id) {
-    unsafe {
+pub fn create_player_table(frame: NSRect) -> (id, id) {
+    unsafe 
+    {
         // Márgenes y alturas
         let title_margin_top = 16.0;
         let title_margin_bottom = 12.0;
@@ -328,7 +332,7 @@ pub fn CreatePlayerTable(frame: NSRect) -> (id, id) {
             NSSize::new(frame.size.width, title_height)
         );
         println!("🔧 Creando etiqueta...");
-        let title = CreateTitleTable(label_frame);
+        let title = create_title_table(label_frame);
 
         // Separador horizontal gris
         println!("🔧 Creando separador...");
@@ -336,7 +340,7 @@ pub fn CreatePlayerTable(frame: NSRect) -> (id, id) {
             NSPoint::new(0.0, frame.size.height - total_header_height),
             NSSize::new(frame.size.width, separator_height)
         );
-        let separator = CreateSeparator(separator_frame);
+        let separator = create_separator(separator_frame);
 
         // Tabla
         println!("🔧 Creando tabla...");
@@ -344,15 +348,15 @@ pub fn CreatePlayerTable(frame: NSRect) -> (id, id) {
             NSPoint::new(0.0, 0.0),
             NSSize::new(frame.size.width, frame.size.height - total_header_height)
         );
-        let table_view = CreateTable(table_frame);
+        let table_view = create_table(table_frame);
 
         // Scroll View
         println!("🔧 Creando scroll view...");
-        let scroll_view = CreateScrollView(table_frame, table_view);
+        let scroll_view = create_scroll_view(table_frame, table_view);
 
         // Contenedor final
         println!("🔧 Creando contenedor...");
-        let container = CreateContainer(frame, title, separator, scroll_view);
+        let container = create_container(frame, title, separator, scroll_view);
 
         println!("✅ Tabla construida correctamente.");
         (container, table_view)

@@ -9,21 +9,12 @@ use cocoa::base::id;
 use std::os::raw::{c_char, c_int};
 use cocoa::foundation::NSRect;
 use objc::runtime::Class;
-use std::ptr;
 
 #[link(name = "objc")]
 unsafe extern "C" {
     // Basic message send variants
     #[link_name = "objc_msgSend"]
     fn objc_msgSend_raw(receiver: *mut Object, sel: Sel, ...) -> *mut Object;
-    
-    // Special variants for floating point returns
-    #[link_name = "objc_msgSend_fpret"]
-    fn objc_msgSend_fpret_raw(receiver: *mut Object, sel: Sel, ...) -> f64;
-    
-    // Struct return variant
-    #[link_name = "objc_msgSend_stret"]
-    fn objc_msgSend_stret_raw(receiver: *mut Object, sel: Sel, ...);
 }
 
 /// Safe wrapper for objc_msgSend with different signatures
