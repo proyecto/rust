@@ -158,39 +158,49 @@ extern "C" fn mouse_down(this: &Object, _: Sel, _: id) {
 }
 
 pub unsafe fn set_active(view: id, active: bool) {
-    let layer: id = msg_send![view, layer];
+
+        let layer: id =   unsafe {crate::libs::objc_shims::msg_send_id(view as *mut _, Sel::register("layer"))};
+
 
     if active {
-        let darkgrey: id = msg_send![
-            class!(NSColor),
-            colorWithCalibratedRed: 
-                SELECTED_BUTTON_COLOR.0 
-                green: SELECTED_BUTTON_COLOR.1 
-                blue: SELECTED_BUTTON_COLOR.2 
-                alpha: 1.0
-        ];
-        let cg_color: id = msg_send![darkgrey, CGColor];
-        let _: () = msg_send![layer, setBackgroundColor: cg_color];
+        unsafe {
+            let ns_color_class = crate::libs::objc_shims::get_class("NSColor");
+            let darkgrey = crate::libs::objc_shims::msg_send_id_f64_f64_f64_f64(
+                ns_color_class as *mut _,
+                Sel::register("colorWithCalibratedRed:green:blue:alpha:"),
+                SELECTED_BUTTON_COLOR.0,
+                SELECTED_BUTTON_COLOR.1,
+                SELECTED_BUTTON_COLOR.2,
+                1.0,
+            );
+            let cg_color: id = crate::libs::objc_shims::msg_send_id(darkgrey as *mut _, Sel::register("CGColor"));            crate::libs::objc_shims::msg_send_void_id(layer as *mut _, Sel::register("setBackgroundColor:"), cg_color);       
+        }
 
     } else {
-        let bggray: id = msg_send![
-            class!(NSColor),
-            colorWithCalibratedRed: 
-                LEFT_VIEW_COLOR.0 
-                green: LEFT_VIEW_COLOR.1 
-                blue: LEFT_VIEW_COLOR.2 
-                alpha: 1.0
-        ];
-        let cg_color: id = msg_send![bggray, CGColor];
-        let _: () = msg_send![layer, setBackgroundColor: cg_color];
+        unsafe {
+            let ns_color_class = crate::libs::objc_shims::get_class("NSColor");
+            let bggray = crate::libs::objc_shims::msg_send_id_f64_f64_f64_f64(
+                ns_color_class as *mut _,
+                Sel::register("colorWithCalibratedRed:green:blue:alpha:"),
+                LEFT_VIEW_COLOR.0,
+                LEFT_VIEW_COLOR.1,
+                LEFT_VIEW_COLOR.2,
+                1.0,
+            );
+
+            let cg_color = crate::libs::objc_shims::msg_send_id(bggray as *mut _, Sel::register("CGColor"));
+            crate::libs::objc_shims::msg_send_void_id(layer as *mut _, Sel::register("setBackgroundColor:"), cg_color);
+        }
     }
 
-    let _: () = msg_send![layer, setCornerRadius: 5.0];
-    let _: () = msg_send![layer, setShadowOpacity: 0.08];
-    let _: () = msg_send![layer, setShadowOffset: NSSize::new(0.0, -1.0)];
-    let _: () = msg_send![layer, setShadowRadius: 0.5];
+    unsafe {
+        crate::libs::objc_shims::msg_send_void_f64(layer as *mut _, Sel::register("setCornerRadius:"), 5.0);
+        crate::libs::objc_shims::msg_send_void_f64(layer as *mut _, Sel::register("setShadowOpacity:"), 0.08);
+        crate::libs::objc_shims::msg_send_void_ns_size(layer as *mut _,
+        Sel::register("setShadowOffset:"),NSSize::new(0.0, -1.0));
+        crate::libs::objc_shims::msg_send_void_f64(layer as *mut _, Sel::register("setShadowRadius:"), 0.5);
+    }
 }
-
 
 pub unsafe fn sanitize_label(label: &str) -> String {
     label.to_lowercase().replace(" ", "_").replace("-", "_")

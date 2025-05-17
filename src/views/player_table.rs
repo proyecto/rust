@@ -2,7 +2,6 @@ use cocoa::base::{nil, id};
 use cocoa::foundation::{NSRect, NSPoint, NSSize, NSString};
 use cocoa::appkit::{NSViewHeightSizable, NSViewWidthSizable, NSViewMinYMargin};
 use objc::runtime::{Class, Object, Sel};
-use objc::*;
 use objc::declare::ClassDecl;
 use crate::models::player::Player;
 use std::os::raw::c_void;
@@ -25,22 +24,22 @@ pub fn register_player_data_source_class() -> *const Class {
         decl.add_ivar::<*mut c_void>("players");
 
         decl.add_method(
-            sel!(numberOfRowsInTableView:),
+            Sel::register("numberOfRowsInTableView:"),
             number_of_rows as extern "C" fn(&Object, Sel, id) -> usize,
         );
 
         decl.add_method(
-            sel!(tableView:objectValueForTableColumn:row:),
+            Sel::register("tableView:objectValueForTableColumn:row:"),
             value_for_cell as extern "C" fn(&Object, Sel, id, id, usize) -> id,
         );
 
         decl.add_method(
-            sel!(tableViewSelectionDidChange:),
+            Sel::register("tableViewSelectionDidChange:"),
             on_row_selected as extern "C" fn(&Object, Sel, id),
         );
 
         decl.add_method(
-            sel!(tableView:heightOfRow:),
+            Sel::register("tableView:heightOfRow:"),
             row_height as extern "C" fn(&Object, Sel, id, isize) -> f64,
         );
 
@@ -74,9 +73,7 @@ extern "C" fn value_for_cell(this: &Object, _: Sel, _: id, column: id, row: usiz
 
         let player = &players[row];
 
-        let id_str: id = msg_send![column, identifier];
-        let cstr: *const std::os::raw::c_char = msg_send![id_str, UTF8String];
-        let key = std::ffi::CStr::from_ptr(cstr).to_str().unwrap_or("");
+        let id_str: id = crate::libs::objc_shims::msg_send_id(column as *mut _, Sel::register("identifier"));        let cstr: *const std::os::raw::c_char = crate::libs::objc_shims::msg_send_c_char(id_str as *mut _, Sel::register("UTF8String"));        let key = std::ffi::CStr::from_ptr(cstr).to_str().unwrap_or("");
 
         let value = match key {
             "col_nombre" => player.name.clone(),
@@ -94,10 +91,10 @@ extern "C" fn value_for_cell(this: &Object, _: Sel, _: id, column: id, row: usiz
 
 extern "C" fn on_row_selected(_this: &Object, _: Sel, notification: id) {
     unsafe {
-        let table_view: id = msg_send![notification, object];
-        let selected: isize = msg_send![table_view, selectedRow];
+        let table_view: id = crate::libs::objc_shims::msg_send_id(notification as *mut _, Sel::register("object")); 
+        let selected: isize = crate::libs::objc_shims::msg_send_usize(table_view as *mut _, Sel::register("selectedRow")) as isize;
         SELECTED_ROW_INDEX = selected;
-        let _: () = msg_send![table_view, noteHeightOfRowsWithIndexesChanged: nil];
+        crate::libs::objc_shims::msg_send_void_id(table_view as *mut _, Sel::register("noteHeightOfRowsWithIndexesChanged:"), nil);
     }
 }
 
@@ -114,8 +111,12 @@ extern "C" fn row_height(_this: &Object, _: Sel, _table: id, row: isize) -> f64 
 pub unsafe fn attach_data_source(table_view: id, players: Vec<Player>) {
     let class = register_player_data_source_class();
 
-    let data_source: id = msg_send![class, alloc];
-    let data_source: id = msg_send![data_source, init];
+    let data_source: id = unsafe {
+        crate::libs::objc_shims::msg_send_id(class as *mut _, Sel::register("alloc"))
+    };    
+    let data_source: id = unsafe {
+        crate::libs::objc_shims::msg_send_id(data_source as *mut _, Sel::register("init"))
+    };
 
     let boxed_vec = Box::new(players);
     let raw_ptr = Box::into_raw(boxed_vec);
@@ -126,11 +127,10 @@ pub unsafe fn attach_data_source(table_view: id, players: Vec<Player>) {
     
     unsafe {
         (*data_source).set_ivar("players", raw_ptr as *mut c_void);
+        crate::libs::objc_shims::msg_send_void_id(table_view as *mut _, Sel::register("setDataSource:"), data_source);
+        crate::libs::objc_shims::msg_send_void_id(table_view as *mut _, Sel::register("setDelegate:"), data_source);
+        crate::libs::objc_shims::msg_send_void(table_view as *mut _, Sel::register("reloadData"));
     }
-
-    let _: () = msg_send![table_view, setDataSource: data_source];
-    let _: () = msg_send![table_view, setDelegate: data_source];
-    let _: () = msg_send![table_view, reloadData];
 }
 
 unsafe fn create_title_table(frame: NSRect) -> id { unsafe {
@@ -149,13 +149,14 @@ unsafe fn create_title_table(frame: NSRect) -> id { unsafe {
     }
 
     let instance: id = {
-        let alloc: id = msg_send![cls, alloc];
-        let obj: id = msg_send![alloc, init];
+        let alloc: id = crate::libs::objc_shims::msg_send_id(cls as *mut _, Sel::register("alloc"));
+        let obj: id = crate::libs::objc_shims::msg_send_id(alloc as *mut _, Sel::register("init"));
         obj
     };
 
     // ⚠️ get_class devuelve *const Class, pero necesitamos *mut Object para msg_send
-    let name_ptr: *const std::os::raw::c_char =msg_send![instance, className];
+    let name_ptr = crate::libs::objc_shims::msg_send_c_char(instance as *mut _, Sel::register("className"));
+
 
     let class_name = CStr::from_ptr(name_ptr).to_string_lossy();
     println!("📛 Instancia creada, clase: {}", class_name);

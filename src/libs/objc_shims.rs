@@ -9,6 +9,7 @@ use cocoa::base::id;
 use std::os::raw::{c_char, c_int};
 use cocoa::foundation::NSRect;
 use objc::runtime::Class;
+use cocoa::foundation::NSSize;
 
 #[link(name = "objc")]
 unsafe extern "C" {
@@ -76,6 +77,16 @@ pub unsafe fn msg_send_id_id_f64(obj: *mut Object, sel: Sel, arg1: id, arg2: f64
 
 pub unsafe fn msg_send_id_f64_f64(obj: *mut Object, sel: Sel, arg1: f64, arg2: f64) -> id {
     unsafe { objc_msgSend_raw(obj, sel, arg1, arg2) as id }
+}
+
+pub unsafe fn msg_send_id_f64_f64_f64_f64(obj: *mut Object, sel: Sel, arg1: f64, arg2: f64, arg3: f64, arg4: f64) -> id {
+    unsafe { objc_msgSend_raw(obj, sel, arg1, arg2, arg3, arg4) as id }
+}
+
+pub unsafe fn msg_send_void_ns_size(obj: *mut Object, sel: Sel, arg: NSSize) {
+    unsafe {
+        let _ = objc_msgSend_raw(obj, sel, arg);
+    }
 }
 
 pub fn get_class(name: &str) -> *const Class {
