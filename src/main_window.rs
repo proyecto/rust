@@ -9,9 +9,9 @@ use cocoa::base::{id, nil};
 use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
 use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel};
-use objc::{msg_send, sel, sel_impl, class};
 use crate::views::main_sideview;
 use crate::views::main_view;
+use crate::libs::objc_shims::*;
 
 pub struct MainWindow {
 }
@@ -40,15 +40,16 @@ impl MainWindow {
 
             window.setMinSize_(NSSize::new(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT));
             window.center();
-            let _: () = msg_send![window, setTitlebarAppearsTransparent: true];
-            let _: () = msg_send![window, setMovableByWindowBackground: true];
+            msg_send_void_bool(window, Sel::register("setTitlebarAppearsTransparent:"), true);
+            msg_send_void_bool(window, Sel::register("setMovableByWindowBackground:"), true);
             window.setTitle_(NSString::alloc(nil).init_str(""));
 
             let content_view: id = window.contentView();
             content_view.addSubview_(create_split_view(frame));
 
-            let delegate: id = msg_send![create_delegate_class(), new];
-            let _: () = msg_send![window, setDelegate: delegate];
+            let delegate_class = create_delegate_class() as *mut Object;
+            let delegate: id = msg_send_id(delegate_class, Sel::register("new"));            
+            msg_send_void_id(window, Sel::register("setDelegate:"), delegate);
 
             window.makeKeyAndOrderFront_(nil);
 
@@ -58,30 +59,53 @@ impl MainWindow {
 }
 
 unsafe fn create_split_view(frame: NSRect) -> id {
-    let split_view: id = msg_send![class!(NSSplitView), alloc];
-    let split_view: id = msg_send![split_view, initWithFrame: frame];
-    let _: () = msg_send![split_view, setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
-    let _: () = msg_send![split_view, setVertical: true];
-    let _: () = msg_send![split_view, setDividerStyle: 2]; // Thin divider
+    unsafe{
+        let split_view_class = get_class("NSSplitView") as *mut Object;
+        let split_view: id = 
+            msg_send_id(split_view_class, Sel::register("alloc"));   
+        let split_view: id = 
+            msg_send_id_rect(split_view, Sel::register("initWithFrame:"), frame);    
 
-    let left_frame = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(SIDEBAR_WIDTH, WINDOW_HEIGHT));
-    let right_frame = NSRect::new(
-        NSPoint::new(SIDEBAR_WIDTH, 0.0),
-        NSSize::new(WINDOW_WIDTH - SIDEBAR_WIDTH, WINDOW_HEIGHT),
-    );
+        msg_send_void_usize(
+            split_view,
+            Sel::register("setAutoresizingMask:"),
+            (NSViewHeightSizable | NSViewWidthSizable) as usize,
+        );
 
-    let left_view = unsafe{main_sideview::create(left_frame)};
-    let _: () = msg_send![left_view, setAutoresizingMask: NSViewHeightSizable | NSViewMaxXMargin];
-    let _: () = msg_send![left_view, setFrameSize: NSSize::new(SIDEBAR_WIDTH, frame.size.height)];
-    unsafe{split_view.addSubview_(left_view)};
+        msg_send_void_bool(split_view, Sel::register("setVertical:"), true);    
+        msg_send_void_usize(split_view, Sel::register("setDividerStyle:"), 2);
+        
+        let left_frame = NSRect::new(NSPoint::new(0.0, 0.0), NSSize::new(SIDEBAR_WIDTH, WINDOW_HEIGHT));
+        let right_frame = NSRect::new(
+            NSPoint::new(SIDEBAR_WIDTH, 0.0),
+            NSSize::new(WINDOW_WIDTH - SIDEBAR_WIDTH, WINDOW_HEIGHT),
+        );
 
-    let right_view = main_view::render_main_view_as_nsview(right_frame);
-    let _: () = msg_send![right_view, setAutoresizingMask: NSViewHeightSizable | NSViewWidthSizable];
-    unsafe{split_view.addSubview_(right_view)};
+        let left_view = main_sideview::create(left_frame);
 
-    let _: () = msg_send![split_view, adjustSubviews];
+        msg_send_void_usize(
+            left_view,
+            Sel::register("setAutoresizingMask:"),
+            (NSViewHeightSizable | NSViewMaxXMargin) as usize,
+        );
 
-    split_view
+        let new_size = NSSize::new(SIDEBAR_WIDTH, frame.size.height);
+
+        msg_send_void_ns_size(left_view, Sel::register("setFrameSize:"), new_size);
+        split_view.addSubview_(left_view);
+
+        let right_view = main_view::render_main_view_as_nsview(right_frame);
+        msg_send_void_usize(
+            right_view,
+            Sel::register("setAutoresizingMask:"),
+            (NSViewHeightSizable | NSViewWidthSizable) as usize,
+        );
+        split_view.addSubview_(right_view);
+
+        msg_send_void(split_view, Sel::register("adjustSubviews"));
+
+        split_view
+    }
 }
 
 unsafe fn create_delegate_class() -> *const Class { unsafe {
@@ -99,7 +123,7 @@ unsafe fn create_delegate_class() -> *const Class { unsafe {
     }
 
     decl.add_method(
-        sel!(windowShouldClose:),
+        Sel::register("windowShouldClose:"),
         window_should_close as extern "C" fn(&Object, Sel, id) -> bool,
     );
 

@@ -3,9 +3,8 @@
 use cocoa::appkit::{NSApp, NSMenu, NSMenuItem, NSApplication};
 use cocoa::base::{id, nil};
 use cocoa::foundation::NSString;
-use objc::msg_send;
-use objc::sel;
-use objc::sel_impl;
+use objc::runtime::{Sel};
+use crate::libs::objc_shims::*;
 
 pub struct MainMenu;
 
@@ -16,7 +15,7 @@ impl MainMenu {
 
             let app_menu = create_menu("Acerca de MiApp", "Salir", "q");
             main_menu.addItem_(app_menu.0);
-            let _: () = msg_send![app_menu.0, setSubmenu: app_menu.1];
+            msg_send_void_id(app_menu.0, Sel::register("setSubmenu:"), app_menu.1);
 
             let archivo_menu = create_menu_item("Archivo");
             main_menu.addItem_(archivo_menu);
@@ -39,7 +38,7 @@ unsafe fn create_menu(about_text: &str, quit_text: &str, quit_key: &str) -> (id,
     let about_item: id = NSMenuItem::alloc(nil)
         .initWithTitle_action_keyEquivalent_(
             NSString::alloc(nil).init_str(about_text),
-            sel!(orderFrontStandardAboutPanel:),
+            Sel::register("orderFrontStandardAboutPanel:"),
             NSString::alloc(nil).init_str(""),
         );
     app_menu.addItem_(about_item);
@@ -48,7 +47,7 @@ unsafe fn create_menu(about_text: &str, quit_text: &str, quit_key: &str) -> (id,
     let quit_item: id = NSMenuItem::alloc(nil)
         .initWithTitle_action_keyEquivalent_(
             NSString::alloc(nil).init_str(quit_text),
-            sel!(terminate:),
+            Sel::register("terminate:"),
             NSString::alloc(nil).init_str(quit_key),
         );
     app_menu.addItem_(quit_item);
@@ -56,10 +55,13 @@ unsafe fn create_menu(about_text: &str, quit_text: &str, quit_key: &str) -> (id,
     (app_menu_item, app_menu)
 }}
 
-unsafe fn create_menu_item(title: &str) -> id { unsafe {
-    let menu_item: id = NSMenuItem::new(nil);
-    let menu: id = NSMenu::new(nil);
-    let _: () = msg_send![menu_item, setTitle: NSString::alloc(nil).init_str(title)];
-    let _: () = msg_send![menu_item, setSubmenu: menu];
-    menu_item
-}}
+unsafe fn create_menu_item(title: &str) -> id { 
+    unsafe {
+        let menu_item: id = NSMenuItem::new(nil);
+        let menu: id = NSMenu::new(nil);
+        let title_nsstring = NSString::alloc(nil).init_str(title);
+        msg_send_void_id(menu_item, Sel::register("setTitle:"), title_nsstring);
+        msg_send_void_id(menu_item, Sel::register("setSubmenu:"), menu);
+        menu_item
+    }
+}

@@ -89,6 +89,12 @@ pub unsafe fn msg_send_void_ns_size(obj: *mut Object, sel: Sel, arg: NSSize) {
     }
 }
 
+pub unsafe fn msg_send_id_no_args(obj: id, sel: Sel) -> id {
+    unsafe{
+        objc_msgSend_raw(obj, sel)
+    }
+}
+
 pub fn get_class(name: &str) -> *const Class {
     Class::get(name).expect("Clase no encontrada")
 }
